@@ -425,7 +425,7 @@
   .btn-modal-confirm:hover{ filter:brightness(1.08); }
   .btn-modal-confirm.danger{ background:var(--red); color:var(--on-red); }
 
-  .log-card{ display:flex; flex-direction:column; }
+  .log-card{ display:flex; flex-direction:column; min-height:0; }
   .log-card header{ margin-bottom:12px; flex:0 0 auto; align-items:flex-start; justify-content:space-between; gap:10px; }
   .log-header-actions{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
 
@@ -565,7 +565,7 @@
   </div>
 
   <div class="layout">
-    <div class="card">
+    <div class="card" id="controlCard">
     <header>
       <div class="title-block">
         <span class="eyebrow">RTAF RCC · SAR Exercise Control</span>
@@ -634,7 +634,7 @@
     </div>
   </div>
 
-  <div class="card log-card">
+  <div class="card log-card" id="logCard">
     <header>
       <div class="title-block">
         <span class="eyebrow">Exercise Control Log</span>
@@ -719,6 +719,8 @@
     btnExportPdf: document.getElementById('btnExportPdf'),
     btnExportWord: document.getElementById('btnExportWord'),
     printArea: document.getElementById('printArea'),
+    controlCard: document.getElementById('controlCard'),
+    logCard: document.getElementById('logCard'),
     themeToggle: document.getElementById('themeToggle'),
     themeToggleLabel: document.getElementById('themeToggleLabel'),
     modalOverlay: document.getElementById('modalOverlay'),
@@ -973,9 +975,9 @@
     els.logEmpty.style.display = state.logs.length ? 'none' : 'block';
     els.logList.innerHTML = state.logs.map(l =>
       '<div class="log-row type-'+l.type+'" data-id="'+l.id+'">' +
+        '<button class="log-del" data-id="'+l.id+'" type="button" title="ลบเหตุการณ์นี้">✕</button>' +
         '<span class="log-time">['+l.time+']</span>' +
         '<span class="log-text">' + (l.manual ? '<span class="log-tag">NOTE</span>' : '') + escapeHtml(l.text) + '</span>' +
-        '<button class="log-del" data-id="'+l.id+'" type="button" title="ลบเหตุการณ์นี้">✕</button>' +
       '</div>'
     ).join('');
   }
@@ -1242,6 +1244,19 @@
     currentTheme = applyTheme(next);
   });
 
+  const desktopLayoutQuery = window.matchMedia('(min-width: 860px)');
+  function syncLogCardHeight(){
+    if(desktopLayoutQuery.matches){
+      els.logCard.style.height = els.controlCard.getBoundingClientRect().height + 'px';
+    } else {
+      els.logCard.style.height = '';
+    }
+  }
+  if(window.ResizeObserver){
+    new ResizeObserver(syncLogCardHeight).observe(els.controlCard);
+  }
+  window.addEventListener('resize', syncLogCardHeight);
+
   // init
   let savedTheme = 'default';
   try{ savedTheme = localStorage.getItem(THEME_KEY) || 'default'; }catch(e){}
@@ -1251,6 +1266,7 @@
   renderLog();
   updateSyncBadge();
   render();
+  syncLogCardHeight();
   setInterval(render, 250);
   syncNetworkTime(true);
   setInterval(()=> syncNetworkTime(true), 10*60*1000);

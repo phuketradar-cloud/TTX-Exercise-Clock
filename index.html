@@ -820,26 +820,13 @@
 
   function baseStartDate(){
     const [h,m] = state.startClockStr.split(':').map(Number);
-    const d = new Date();
+    const d = new Date(netNow());
     d.setHours(h, m, 0, 0);
     return d;
   }
 
   function currentOffsetMs(){
     return state.baseOffsetMs + (state.running ? (netNow() - state.runStartReal) : 0);
-  }
-
-  function fmtHMS(ms){
-    const totalSec = Math.floor(ms/1000);
-    const h = Math.floor(totalSec/3600) % 24;
-    const m = Math.floor((totalSec%3600)/60);
-    const s = totalSec%60;
-    return pad(h)+':'+pad(m)+':'+pad(s);
-  }
-
-  function dayOffset(ms){
-    const totalSec = Math.floor(ms/1000);
-    return Math.floor(totalSec/86400);
   }
 
   function nowLogTime(){

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAR TTX — Exercise Clock</title>
+<style>
+  :root{
+    --bg: #060A13;
+    --panel: #0E1728;
+    --panel-2: #0A1220;
+    --border: #1F2C47;
+    --divider: #1C2740;
+    --text: #E7ECF7;
+    --muted: #7C8BA6;
+    --amber: #F5A623;
+    --amber-dim: #7A5714;
+    --cyan: #38BDF8;
+    --cyan-soft: rgba(56,189,248,.35);
+    --green: #34D399;
+    --green-dim: #1C5C43;
+    --red: #F26363;
+    --red-dim: #6B2323;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #14203a 0%, transparent 60%),
+      repeating-linear-gradient(0deg, rgba(56,189,248,.02) 0px, rgba(56,189,248,.02) 1px, transparent 1px, transparent 46px),
+      repeating-linear-gradient(90deg, rgba(56,189,248,.02) 0px, rgba(56,189,248,.02) 1px, transparent 1px, transparent 46px),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+  }
+
+  body{
+    display:flex; justify-content:center; align-items:flex-start;
+    padding:28px 16px 60px;
+    position:relative;
+  }
+
+  .app{
+    width:100%; max-width:1180px;
+    position:relative; z-index:2;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:14px;
+  }
+  @media (min-width:860px){
+    .layout{ grid-template-columns: 580px 1fr; align-items:stretch; }
+  }
+
+  .app-credit{
+    text-align:right; margin-top:10px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.06em;
+    color:var(--muted); opacity:.6;
+  }
+
+  .card{
+    position:relative;
+    background-color:var(--panel);
+    border:1px solid rgba(56,189,248,.18);
+    border-radius:2px;
+    padding:24px 24px 18px;
+    box-shadow:
+      0 20px 50px -20px rgba(0,0,0,0.7),
+      0 0 34px -22px rgba(56,189,248,.35);
+    background-repeat:no-repeat;
+    background-image:
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan));
+    background-size:
+      18px 2px, 2px 18px, 18px 2px, 2px 18px,
+      18px 2px, 2px 18px, 18px 2px, 2px 18px;
+    background-position:
+      0 0, 0 0,
+      calc(100% - 18px) 0, 100% 0,
+      0 calc(100% - 2px), 0 calc(100% - 18px),
+      calc(100% - 18px) calc(100% - 2px), 100% calc(100% - 18px);
+  }
+
+  header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:12px; margin-bottom:18px;
+  }
+
+  .title-block{ display:flex; flex-direction:column; gap:6px; }
+
+  .eyebrow{
+    display:inline-block; align-self:flex-start;
+    font-size:10.5px; letter-spacing:.16em; color:var(--cyan);
+    text-transform:uppercase; font-weight:700;
+    background:linear-gradient(90deg, rgba(56,189,248,.16), transparent 90%);
+    border-left:3px solid var(--cyan);
+    padding:3px 12px 3px 8px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+
+  h1{
+    font-size:17px; margin:0; font-weight:650; letter-spacing:.02em;
+    text-shadow: 0 0 18px rgba(56,189,248,.18);
+  }
+
+  .status-pill{
+    display:flex; align-items:center; gap:7px;
+    font-size:11px; font-weight:700; letter-spacing:.08em;
+    padding:6px 12px; border-radius:999px; border:1px solid var(--border);
+    background:var(--panel-2); white-space:nowrap; text-transform:uppercase;
+  }
+
+  .status-dot{ width:7px; height:7px; border-radius:50%; background:var(--muted); }
+  .status-pill.running .status-dot{ background:var(--green); animation:pulse 1.6s ease-in-out infinite; }
+  .status-pill.running{ color:var(--green); border-color:var(--green-dim); }
+  .status-pill.paused .status-dot{ background:var(--amber); }
+  .status-pill.paused{ color:var(--amber); border-color:var(--amber-dim); }
+
+  @keyframes pulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(52,211,153,.55); }
+    50%{ box-shadow:0 0 0 5px rgba(52,211,153,0); }
+  }
+
+  .clock-wrap{ text-align:center; padding:6px 0 14px; }
+
+  .clock-row{
+    display:flex; gap:16px; justify-content:center; align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .clock-col{ flex:1 1 180px; min-width:150px; position:relative; padding-bottom:12px; }
+  .clock-col::after{
+    content:''; position:absolute; left:6%; right:6%; bottom:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--scan-c, var(--cyan)) 50%, transparent);
+    background-size:220% 100%;
+    animation: scanSweep 2.6s linear infinite;
+    opacity:.55;
+  }
+  .clock-col:has(.big-clock.amber){ --scan-c: var(--amber); }
+  @keyframes scanSweep{
+    0%{ background-position:220% 0; }
+    100%{ background-position:-220% 0; }
+  }
+
+  .clock-label{
+    font-size:11px; letter-spacing:.14em; color:var(--muted);
+    text-transform:uppercase; font-weight:600; margin-bottom:6px;
+  }
+
+  .big-clock{
+    font-family:var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size:clamp(26px, 6vw, 44px);
+    font-weight:600;
+    letter-spacing:.03em;
+    transition: opacity .12s ease;
+    white-space:nowrap;
+  }
+  .big-clock.amber{ color:var(--amber); text-shadow: 0 0 24px rgba(245,166,35,.25); }
+  .big-clock.cyan{ color:var(--cyan); text-shadow: 0 0 24px rgba(56,189,248,.25); }
+
+  .big-clock.jump{ animation: jumpFlash .5s ease; }
+  @keyframes jumpFlash{
+    0%{ opacity:.15; transform:translateY(-2px); }
+    100%{ opacity:1; transform:translateY(0); }
+  }
+
+  .day-row{
+    margin-top:6px; font-size:12.5px; color:var(--muted);
+    font-family:var(--mono);
+  }
+  .day-row b{ color:var(--text); font-weight:600; }
+
+  .startline{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:14px; font-size:12.5px; color:var(--muted);
+  }
+  .startline label{ letter-spacing:.02em; }
+  .startline input[type="time"]{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:13px; padding:5px 8px; border-radius:7px;
+    color-scheme: dark;
+  }
+  .startline input[type="time"]:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+  .controls{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:16px;
+  }
+
+  button{
+    font-family:var(--sans); font-size:13.5px; font-weight:650;
+    letter-spacing:.04em; border-radius:8px; padding:11px 10px; cursor:pointer;
+    border:1px solid transparent; transition: filter .12s ease, transform .06s ease;
+  }
+  button:active{ transform:translateY(1px); }
+  button:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  button:disabled{ opacity:.35; cursor:not-allowed; }
+
+  .btn-start, .btn-pause{ border-radius:8px 3px 8px 3px; }
+  .btn-reset{ border-radius:3px 8px 3px 8px; }
+
+  .btn-start{ background:var(--green); color:#062018; }
+  .btn-start:hover:not(:disabled){ filter:brightness(1.08); }
+
+  .btn-pause{ background:var(--amber); color:#2a1a02; }
+  .btn-pause:hover:not(:disabled){ filter:brightness(1.08); }
+
+  .btn-reset{ background:transparent; color:var(--red); border-color:var(--red-dim); }
+  .btn-reset:hover:not(:disabled){ background:rgba(242,99,99,.08); }
+
+  .section-title{
+    font-size:11px; letter-spacing:.14em; color:var(--muted);
+    text-transform:uppercase; font-weight:600; margin:18px 0 9px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-title::before{
+    content:''; flex:0 0 auto; width:6px; height:6px; background:var(--cyan);
+    transform:rotate(45deg); box-shadow:0 0 6px var(--cyan-soft);
+  }
+
+  .adjust-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  }
+  .adjust-grid.neg{ margin-bottom:8px; }
+
+  .btn-adj{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:13px; padding:9px 4px;
+  }
+  .btn-adj:hover:not(:disabled){ border-color:var(--cyan); color:var(--cyan); }
+  .adjust-grid.neg .btn-adj:hover:not(:disabled){ border-color:var(--red); color:var(--red); }
+
+  .custom-row{
+    display:flex; gap:8px; margin-top:10px;
+  }
+  .custom-row input[type="number"]{
+    flex:1; min-width:0;
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:14px; padding:9px 10px; border-radius:8px;
+  }
+  .custom-row input:focus-visible{ outline:2px solid var(--cyan); outline-offset:1px; }
+  .custom-row button{ flex:0 0 auto; padding:9px 14px; }
+  .btn-add{ background:transparent; border:1px solid var(--green-dim); color:var(--green); }
+  .btn-add:hover:not(:disabled){ background:rgba(52,211,153,.08); }
+  .btn-sub{ background:transparent; border:1px solid var(--red-dim); color:var(--red); }
+  .btn-sub:hover:not(:disabled){ background:rgba(242,99,99,.08); }
+
+  .realtime-row{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin-top:16px; padding-top:14px; border-top:1px solid var(--divider);
+    flex-wrap:wrap;
+  }
+
+  .sync-badge{
+    display:flex; align-items:center; gap:5px;
+    font-family:var(--sans); font-size:10.5px; font-weight:700; letter-spacing:.06em;
+    padding:3px 9px; border-radius:999px; border:1px solid var(--border);
+    background:var(--panel-2); text-transform:uppercase; color:var(--muted);
+  }
+  .sync-badge .sync-dot{ width:6px; height:6px; border-radius:50%; background:var(--muted); }
+  .sync-badge.ok{ color:var(--green); border-color:var(--green-dim); }
+  .sync-badge.ok .sync-dot{ background:var(--green); }
+  .sync-badge.bad{ color:var(--red); border-color:var(--red-dim); }
+  .sync-badge.bad .sync-dot{ background:var(--red); }
+  .sync-badge.pending .sync-dot{ animation:pulse 1s ease-in-out infinite; }
+
+  .btn-sync{
+    background:transparent; border:1px solid var(--border); color:var(--cyan);
+    font-family:var(--sans); font-size:11px; padding:4px 9px; letter-spacing:.04em;
+  }
+  .btn-sync:hover:not(:disabled){ border-color:var(--cyan); background:rgba(56,189,248,.08); }
+  .btn-sync:disabled{ opacity:.5; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(4,7,14,.72);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:50; opacity:0; pointer-events:none;
+    transition:opacity .15s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .modal-box{
+    width:100%; max-width:380px;
+    position:relative;
+    background-color:var(--panel); border:1px solid rgba(56,189,248,.22); border-radius:2px;
+    padding:20px 20px 16px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,.7), 0 0 34px -20px rgba(56,189,248,.35);
+    transform:translateY(6px); transition:transform .15s ease;
+    background-repeat:no-repeat;
+    background-image:
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan)),
+      linear-gradient(var(--cyan), var(--cyan)), linear-gradient(var(--cyan), var(--cyan));
+    background-size:
+      14px 2px, 2px 14px, 14px 2px, 2px 14px,
+      14px 2px, 2px 14px, 14px 2px, 2px 14px;
+    background-position:
+      0 0, 0 0,
+      calc(100% - 14px) 0, 100% 0,
+      0 calc(100% - 2px), 0 calc(100% - 14px),
+      calc(100% - 14px) calc(100% - 2px), 100% calc(100% - 14px);
+  }
+  .modal-overlay.open .modal-box{ transform:translateY(0); }
+
+  .modal-title{ font-size:15px; font-weight:650; margin:0 0 6px; }
+  .modal-message{ font-size:13px; color:var(--muted); line-height:1.5; margin:0 0 14px; }
+
+  .modal-box input[type="text"]{
+    width:100%; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:16px; padding:10px 12px; border-radius:8px;
+    margin-bottom:6px;
+  }
+  .modal-box input[type="text"]:focus-visible{ outline:2px solid var(--cyan); outline-offset:1px; }
+  .modal-hint{ font-size:11.5px; color:var(--muted); margin:0 0 14px; }
+  .modal-error{ font-size:12px; color:var(--red); margin:-2px 0 12px; display:none; }
+  .modal-error.show{ display:block; }
+
+  .modal-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .modal-actions button{ padding:9px 16px; }
+  .btn-modal-cancel{ background:transparent; border:1px solid var(--border); color:var(--muted); }
+  .btn-modal-cancel:hover{ color:var(--text); border-color:var(--muted); }
+  .btn-modal-confirm{ background:var(--cyan); color:#052033; }
+  .btn-modal-confirm:hover{ filter:brightness(1.08); }
+  .btn-modal-confirm.danger{ background:var(--red); color:#2a0a0a; }
+
+  .log-card{ display:flex; flex-direction:column; }
+  .log-card header{ margin-bottom:12px; flex:0 0 auto; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .log-header-actions{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+
+  .btn-export{
+    background:transparent; border:1px solid var(--border); color:var(--cyan);
+    font-size:11.5px; padding:5px 10px; letter-spacing:.04em;
+  }
+  .btn-export:hover:not(:disabled){ border-color:var(--cyan); background:rgba(56,189,248,.08); }
+
+  #printArea{ display:none; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #printArea{
+      display:block; position:absolute; top:0; left:0; width:100%;
+      background:#fff; color:#111; font-family:Arial, "Noto Sans Thai", sans-serif;
+      padding:12mm;
+    }
+    #printArea h1{ font-size:18px; margin:0 0 2px; }
+    #printArea .print-sub{ font-size:11px; color:#444; margin:0 0 3px; }
+    #printArea .print-meta{ font-size:10.5px; color:#333; margin:10px 0 14px; border-top:1px solid #ccc; border-bottom:1px solid #ccc; padding:6px 0; }
+    #printArea table{ width:100%; border-collapse:collapse; font-size:10.5px; }
+    #printArea th, #printArea td{ border:1px solid #999; padding:4px 6px; text-align:left; vertical-align:top; }
+    #printArea th{ background:#eee; }
+    #printArea td.pt-time{ white-space:nowrap; font-family:"Courier New",monospace; }
+    #printArea td.pt-tag{ white-space:nowrap; }
+  }
+
+  .log-empty{ color:var(--muted); font-size:12.5px; padding:6px 2px; }
+
+  .log-list{
+    flex:1 1 auto; min-height:120px; max-height:520px; overflow-y:auto;
+    display:flex; flex-direction:column-reverse;
+    gap:0;
+  }
+  @media (min-width:860px){
+    .log-list{ max-height:none; }
+  }
+  .log-row{
+    display:flex; align-items:flex-start; gap:8px; padding:7px 2px; border-top:1px solid var(--divider);
+    font-family:var(--mono); font-size:12.5px;
+  }
+  .log-row:first-child{ border-top:none; }
+  .log-time{ color:var(--muted); flex:0 0 auto; }
+  .log-text{ color:var(--text); flex:1 1 auto; word-break:break-word; }
+  .log-row.type-start .log-text, .log-row.type-resume .log-text{ color:var(--green); }
+  .log-row.type-pause .log-text{ color:var(--amber); }
+  .log-row.type-reset .log-text{ color:var(--red); }
+  .log-row.type-adjust .log-text{ color:var(--cyan); }
+  .log-row.type-sync .log-text{ color:var(--muted); }
+  .log-row.type-sync-fail .log-text{ color:var(--red); }
+  .log-row.type-manual .log-text{ color:var(--text); }
+
+  .log-tag{
+    display:inline-block; font-family:var(--sans); font-size:9.5px; font-weight:700;
+    letter-spacing:.05em; color:var(--muted); background:var(--panel-2);
+    border:1px solid var(--border); border-radius:4px; padding:1px 5px;
+    margin-right:6px; vertical-align:1px;
+  }
+  .log-row.type-manual .log-tag{ color:var(--cyan); border-color:var(--green-dim); }
+
+  .log-del{
+    flex:0 0 auto; background:transparent; border:none; color:var(--muted);
+    font-family:var(--sans); font-size:13px; line-height:1; padding:2px 4px;
+    border-radius:5px; cursor:pointer;
+  }
+  .log-del:hover{ color:var(--red); background:rgba(242,99,99,.1); }
+
+  .manual-log-row{
+    display:flex; gap:8px; margin-bottom:12px;
+  }
+  .manual-log-row input[type="text"]{
+    flex:1; min-width:0;
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--sans); font-size:13px; padding:9px 10px; border-radius:8px;
+  }
+  .manual-log-row input:focus-visible{ outline:2px solid var(--cyan); outline-offset:1px; }
+  .btn-manual-log{
+    flex:0 0 auto; background:transparent; border:1px solid var(--green-dim); color:var(--green);
+    padding:9px 14px;
+  }
+  .btn-manual-log:hover:not(:disabled){ background:rgba(52,211,153,.08); }
+
+  .clear-log{
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    font-size:11.5px; padding:5px 10px; letter-spacing:.04em;
+  }
+  .clear-log:hover:not(:disabled){ color:var(--text); border-color:var(--muted); }
+
+  @media (max-width:420px){
+    .controls{ grid-template-columns:1fr 1fr 1fr; }
+    .adjust-grid{ grid-template-columns:repeat(4,1fr); gap:6px; }
+    .btn-adj{ font-size:12px; padding:8px 2px; }
+    .clock-col{ flex:1 1 100%; }
+    .realtime-row{ font-size:12px; }
+    .realtime-row .btn-sync{ font-size:10.5px; padding:4px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="layout">
+    <div class="card">
+    <header>
+      <div class="title-block">
+        <span class="eyebrow">RTAF RCC · SAR Exercise Control</span>
+        <h1>TTX Exercise Clock</h1>
+      </div>
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot"></span>
+        <span id="statusText">STOPPED</span>
+      </div>
+    </header>
+
+    <div class="clock-wrap">
+      <div class="clock-row">
+        <div class="clock-col">
+          <div class="clock-label">Real Time</div>
+          <div class="big-clock cyan" id="realTimeBig">--:--:--</div>
+        </div>
+        <div class="clock-col">
+          <div class="clock-label">Exercise Time (ENDEX Clock)</div>
+          <div class="big-clock amber" id="exTime">08:00:00</div>
+          <div class="day-row">วัน <b id="dayCount">D+0</b> · เริ่มสถานการณ์ (STARTEX) <b id="startexOut">08:00</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="startline">
+      <label for="startInput">เวลาเริ่มสถานการณ์</label>
+      <input type="time" id="startInput" value="08:00" step="1">
+    </div>
+
+    <div class="controls">
+      <button class="btn-start" id="btnStart">START</button>
+      <button class="btn-pause" id="btnPause" disabled>PAUSE</button>
+      <button class="btn-reset" id="btnReset">RESET</button>
+    </div>
+
+    <div class="section-title">ปรับเวลา (Time Jump)</div>
+    <div class="adjust-grid neg">
+      <button class="btn-adj" data-min="-60">−60m</button>
+      <button class="btn-adj" data-min="-15">−15m</button>
+      <button class="btn-adj" data-min="-5">−5m</button>
+      <button class="btn-adj" data-min="-1">−1m</button>
+    </div>
+    <div class="adjust-grid">
+      <button class="btn-adj" data-min="1">+1m</button>
+      <button class="btn-adj" data-min="5">+5m</button>
+      <button class="btn-adj" data-min="15">+15m</button>
+      <button class="btn-adj" data-min="60">+60m</button>
+    </div>
+
+    <div class="custom-row">
+      <input type="number" id="customMin" placeholder="ระบุนาที เช่น 20" min="0" step="1" inputmode="numeric">
+      <button class="btn-add" id="btnCustomAdd">+ บวก</button>
+      <button class="btn-sub" id="btnCustomSub">− ลบ</button>
+    </div>
+
+    <div class="realtime-row">
+      <span class="sync-badge pending" id="syncBadge">
+        <span class="sync-dot"></span>
+        <span id="syncBadgeText">SYNCING…</span>
+      </span>
+      <button class="btn-sync" id="btnSync" type="button">SYNC NOW</button>
+      <button class="btn-sync" id="btnManualSync" type="button">ตั้งเวลาจริงเอง</button>
+      <button class="btn-sync" id="btnManualExercise" type="button">ตั้งเวลาฝึกเอง</button>
+      <button class="btn-sync" id="btnSyncExToReal" type="button">Exercise = Real Time</button>
+    </div>
+  </div>
+
+  <div class="card log-card">
+    <header>
+      <div class="title-block">
+        <span class="eyebrow">Exercise Control Log</span>
+        <h1>บันทึกเหตุการณ์</h1>
+      </div>
+      <div class="log-header-actions">
+        <button class="btn-export" id="btnExportPdf" type="button">PDF</button>
+        <button class="btn-export" id="btnExportWord" type="button">Word</button>
+        <button class="clear-log" id="btnClearLog">CLEAR</button>
+      </div>
+    </header>
+    <div class="manual-log-row">
+      <input type="text" id="manualLogInput" placeholder="พิมพ์บันทึกเหตุการณ์เอง เช่น เหตุผลที่ปรับเวลา" maxlength="200">
+      <button class="btn-manual-log" id="btnAddManualLog" type="button">+ บันทึก</button>
+    </div>
+    <div id="logEmpty" class="log-empty">ยังไม่มีบันทึก — กด START เพื่อเริ่ม</div>
+    <div class="log-list" id="logList"></div>
+  </div>
+
+  </div>
+
+  <div class="app-credit">design by monsterman1010</div>
+
+</div>
+
+<div id="printArea"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h2 class="modal-title" id="modalTitle">Title</h2>
+    <p class="modal-message" id="modalMessage"></p>
+    <input type="text" id="modalInput" style="display:none;" inputmode="numeric" autocomplete="off">
+    <p class="modal-hint" id="modalHint" style="display:none;"></p>
+    <p class="modal-error" id="modalError"></p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="modalCancel" type="button">ยกเลิก</button>
+      <button class="btn-modal-confirm" id="modalConfirm" type="button">ตกลง</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const state = {
+    running: false,
+    baseOffsetMs: 0,
+    runStartReal: null,
+    startClockStr: "08:00",
+    startBaseDate: null,
+    logs: [],
+    logSeq: 0,
+    timeOffsetMs: 0,
+    synced: false,
+    syncing: false
+  };
+
+  const els = {
+    exTime: document.getElementById('exTime'),
+    dayCount: document.getElementById('dayCount'),
+    startexOut: document.getElementById('startexOut'),
+    startInput: document.getElementById('startInput'),
+    statusPill: document.getElementById('statusPill'),
+    statusText: document.getElementById('statusText'),
+    btnStart: document.getElementById('btnStart'),
+    btnPause: document.getElementById('btnPause'),
+    btnReset: document.getElementById('btnReset'),
+    customMin: document.getElementById('customMin'),
+    btnCustomAdd: document.getElementById('btnCustomAdd'),
+    btnCustomSub: document.getElementById('btnCustomSub'),
+    realTimeBig: document.getElementById('realTimeBig'),
+    logList: document.getElementById('logList'),
+    logEmpty: document.getElementById('logEmpty'),
+    btnClearLog: document.getElementById('btnClearLog'),
+    syncBadge: document.getElementById('syncBadge'),
+    syncBadgeText: document.getElementById('syncBadgeText'),
+    btnSync: document.getElementById('btnSync'),
+    btnManualSync: document.getElementById('btnManualSync'),
+    btnManualExercise: document.getElementById('btnManualExercise'),
+    btnSyncExToReal: document.getElementById('btnSyncExToReal'),
+    manualLogInput: document.getElementById('manualLogInput'),
+    btnAddManualLog: document.getElementById('btnAddManualLog'),
+    btnExportPdf: document.getElementById('btnExportPdf'),
+    btnExportWord: document.getElementById('btnExportWord'),
+    printArea: document.getElementById('printArea'),
+    modalOverlay: document.getElementById('modalOverlay'),
+    modalTitle: document.getElementById('modalTitle'),
+    modalMessage: document.getElementById('modalMessage'),
+    modalInput: document.getElementById('modalInput'),
+    modalHint: document.getElementById('modalHint'),
+    modalError: document.getElementById('modalError'),
+    modalCancel: document.getElementById('modalCancel'),
+    modalConfirm: document.getElementById('modalConfirm'),
+  };
+
+  // ---- Modal dialog (replaces window.prompt/alert/confirm, which are blocked
+  //      inside this sandboxed artifact and fail silently) ----
+  let modalResolve = null;
+  let modalValidate = null;
+
+  function openModal(opts){
+    els.modalTitle.textContent = opts.title || '';
+    els.modalMessage.textContent = opts.message || '';
+    els.modalMessage.style.display = opts.message ? 'block' : 'none';
+    els.modalError.textContent = '';
+    els.modalError.classList.remove('show');
+    modalValidate = opts.validate || null;
+    if(opts.showInput){
+      els.modalInput.style.display = 'block';
+      els.modalInput.value = opts.inputValue || '';
+      els.modalInput.placeholder = opts.inputPlaceholder || '';
+    } else {
+      els.modalInput.style.display = 'none';
+    }
+    if(opts.hint){
+      els.modalHint.textContent = opts.hint;
+      els.modalHint.style.display = 'block';
+    } else {
+      els.modalHint.style.display = 'none';
+    }
+    els.modalConfirm.textContent = opts.confirmText || 'ตกลง';
+    els.modalConfirm.classList.toggle('danger', !!opts.danger);
+    els.modalCancel.style.display = opts.hideCancel ? 'none' : 'inline-block';
+    els.modalOverlay.classList.add('open');
+    if(opts.showInput){
+      setTimeout(()=>{ els.modalInput.focus(); els.modalInput.select(); }, 30);
+    }
+    return new Promise((resolve)=>{ modalResolve = resolve; });
+  }
+
+  function closeModal(result){
+    els.modalOverlay.classList.remove('open');
+    modalValidate = null;
+    if(modalResolve){ modalResolve(result); modalResolve = null; }
+  }
+
+  function attemptConfirm(){
+    const val = els.modalInput.style.display==='block' ? els.modalInput.value : true;
+    if(modalValidate){
+      const errMsg = modalValidate(val);
+      if(errMsg){
+        els.modalError.textContent = errMsg;
+        els.modalError.classList.add('show');
+        return;
+      }
+    }
+    closeModal(val);
+  }
+
+  els.modalCancel.addEventListener('click', ()=> closeModal(null));
+  els.modalOverlay.addEventListener('click', (e)=>{ if(e.target === els.modalOverlay) closeModal(null); });
+  els.modalConfirm.addEventListener('click', attemptConfirm);
+  els.modalInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); attemptConfirm(); }
+    if(e.key==='Escape'){ e.preventDefault(); closeModal(null); }
+  });
+
+  function netNow(){ return Date.now() + state.timeOffsetMs; }
+
+  function updateSyncBadge(){
+    els.syncBadge.classList.remove('ok','bad','pending');
+    if(state.syncing){
+      els.syncBadge.classList.add('pending');
+      els.syncBadgeText.textContent = 'SYNCING…';
+    } else if(state.synced){
+      els.syncBadge.classList.add('ok');
+      const d = new Date(state.lastSyncReal);
+      const modeLabel = state.syncMode === 'manual' ? 'MANUAL' : 'SYNCED';
+      els.syncBadgeText.textContent = modeLabel + ' ' + pad(d.getHours())+':'+pad(d.getMinutes());
+    } else {
+      els.syncBadge.classList.add('bad');
+      els.syncBadgeText.textContent = 'LOCAL (unsynced)';
+    }
+  }
+
+  async function syncNetworkTime(auto){
+    state.syncing = true;
+    updateSyncBadge();
+    // worldtimeapi.org was permanently shut down (sunset) — timeapi.io is the live endpoint.
+    const endpoints = [
+      'https://timeapi.io/api/time/current/zone?timeZone=Asia%2FBangkok'
+    ];
+    let done = false;
+    let lastErr = null;
+    for(const url of endpoints){
+      if(done) break;
+      try{
+        const t0 = Date.now();
+        const res = await fetch(url, { cache:'no-store' });
+        const t1 = Date.now();
+        if(!res.ok){ lastErr = 'HTTP ' + res.status; continue; }
+        const data = await res.json();
+        let serverMs = null;
+        if(typeof data.unixtime === 'number'){
+          serverMs = data.unixtime*1000;
+          if(typeof data.datetime === 'string'){
+            const parsed = Date.parse(data.datetime);
+            if(!Number.isNaN(parsed)) serverMs = parsed;
+          }
+        } else if(typeof data.dateTime === 'string' && !data.dateTime.match(/[Zz]|[+-]\d\d:\d\d$/)){
+          // timeapi.io returns zone-local time with no offset suffix; Bangkok is fixed UTC+7 (no DST)
+          const parsed = Date.parse(data.dateTime + '+07:00');
+          if(!Number.isNaN(parsed)) serverMs = parsed;
+        } else if(typeof data.dateTime === 'string'){
+          const parsed = Date.parse(data.dateTime);
+          if(!Number.isNaN(parsed)) serverMs = parsed;
+        }
+        if(serverMs === null){ lastErr = 'ตอบกลับไม่ตรงรูปแบบที่รองรับ'; continue; }
+        const rtt = t1 - t0;
+        const estServerAtT1 = serverMs + rtt/2;
+        state.timeOffsetMs = estServerAtT1 - t1;
+        state.synced = true;
+        state.syncMode = 'network';
+        state.lastSyncReal = Date.now();
+        done = true;
+      }catch(err){
+        lastErr = (err && err.message) ? err.message : String(err);
+      }
+    }
+    state.syncing = false;
+    if(done){
+      addLog('sync', 'NETWORK TIME SYNCED (Δ ' + (state.timeOffsetMs>=0?'+':'') + state.timeOffsetMs + ' ms)');
+    } else if(!auto){
+      addLog('sync-fail', 'NETWORK SYNC FAILED (' + (lastErr || 'unknown error') + ') — เครือข่ายอาจบล็อกการเชื่อมต่อออกภายนอก ลอง "ตั้งเวลาเอง" แทน');
+    }
+    updateSyncBadge();
+    render();
+  }
+
+  async function manualSync(){
+    const guess = new Date(netNow());
+    const suggestion = pad(guess.getHours())+':'+pad(guess.getMinutes())+':'+pad(guess.getSeconds());
+    const input = await openModal({
+      title: 'ตั้งเวลาเอง',
+      message: 'กรอกเวลาปัจจุบันที่ถูกต้อง (จากนาฬิกาอ้างอิงอื่น เช่น GPS หรือนาฬิกามาตรฐานของหน่วย)',
+      showInput: true,
+      inputValue: suggestion,
+      inputPlaceholder: 'HH:MM:SS',
+      hint: 'รูปแบบ HH:MM หรือ HH:MM:SS (24 ชั่วโมง)',
+      confirmText: 'ตั้งเวลา',
+      validate: (val)=>{
+        const m = (val||'').trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+        if(!m) return 'รูปแบบเวลาไม่ถูกต้อง กรุณากรอกเป็น HH:MM หรือ HH:MM:SS';
+        const h = parseInt(m[1],10), mi = parseInt(m[2],10), se = m[3]?parseInt(m[3],10):0;
+        if(h>23||mi>59||se>59) return 'ค่าเวลาไม่ถูกต้อง';
+        return null;
+      }
+    });
+    if(!input) return;
+    const m = input.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(!m) return;
+    const h = parseInt(m[1],10), mi = parseInt(m[2],10), se = m[3]?parseInt(m[3],10):0;
+    const now = new Date();
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, mi, se, 0);
+    state.timeOffsetMs = target.getTime() - Date.now();
+    state.synced = true;
+    state.syncMode = 'manual';
+    state.lastSyncReal = Date.now();
+    addLog('sync', 'MANUAL TIME SET → ' + pad(h)+':'+pad(mi)+':'+pad(se));
+    updateSyncBadge();
+    render();
+  }
+
+  async function manualSetExercise(){
+    const curOff = currentOffsetMs();
+    const curExDate = new Date(state.startBaseDate.getTime() + curOff);
+    const suggestion = pad(curExDate.getHours())+':'+pad(curExDate.getMinutes())+':'+pad(curExDate.getSeconds());
+    const input = await openModal({
+      title: 'ตั้งเวลาฝึกเอง',
+      message: 'กำหนดเวลาในสถานการณ์ฝึก (Exercise Time) โดยตรง โดยไม่ต้องกด Time Jump',
+      showInput: true,
+      inputValue: suggestion,
+      inputPlaceholder: 'HH:MM:SS',
+      hint: 'รูปแบบ HH:MM หรือ HH:MM:SS (24 ชั่วโมง) · วันเดียวกับที่แสดงอยู่ (D+' +
+            Math.floor((new Date(curExDate.getFullYear(),curExDate.getMonth(),curExDate.getDate()) - new Date(state.startBaseDate.getFullYear(),state.startBaseDate.getMonth(),state.startBaseDate.getDate())) / 86400000) + ')',
+      confirmText: 'ตั้งเวลาฝึก',
+      validate: (val)=>{
+        const m = (val||'').trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+        if(!m) return 'รูปแบบเวลาไม่ถูกต้อง กรุณากรอกเป็น HH:MM หรือ HH:MM:SS';
+        const h = parseInt(m[1],10), mi = parseInt(m[2],10), se = m[3]?parseInt(m[3],10):0;
+        if(h>23||mi>59||se>59) return 'ค่าเวลาไม่ถูกต้อง';
+        return null;
+      }
+    });
+    if(!input) return;
+    const m = input.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(!m) return;
+    const h = parseInt(m[1],10), mi = parseInt(m[2],10), se = m[3]?parseInt(m[3],10):0;
+    const target = new Date(curExDate.getFullYear(), curExDate.getMonth(), curExDate.getDate(), h, mi, se, 0);
+    state.baseOffsetMs = target.getTime() - state.startBaseDate.getTime();
+    if(state.running){ state.runStartReal = netNow(); }
+    addLog('adjust', 'EXERCISE TIME SET → ' + pad(h)+':'+pad(mi)+':'+pad(se));
+    flashClock(els.exTime);
+    render();
+  }
+
+  function syncExerciseToReal(){
+    const targetOffset = netNow() - state.startBaseDate.getTime();
+    state.baseOffsetMs = targetOffset;
+    if(state.running){ state.runStartReal = netNow(); }
+    addLog('adjust', 'EXERCISE TIME SYNCED TO REAL TIME');
+    flashClock(els.exTime);
+    render();
+  }
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function baseStartDate(){
+    const [h,m] = state.startClockStr.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+  }
+
+  function currentOffsetMs(){
+    return state.baseOffsetMs + (state.running ? (netNow() - state.runStartReal) : 0);
+  }
+
+  function fmtHMS(ms){
+    const totalSec = Math.floor(ms/1000);
+    const h = Math.floor(totalSec/3600) % 24;
+    const m = Math.floor((totalSec%3600)/60);
+    const s = totalSec%60;
+    return pad(h)+':'+pad(m)+':'+pad(s);
+  }
+
+  function dayOffset(ms){
+    const totalSec = Math.floor(ms/1000);
+    return Math.floor(totalSec/86400);
+  }
+
+  function nowLogTime(){
+    const d = new Date(netNow());
+    return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function addLog(type, text, manual){
+    state.logSeq += 1;
+    state.logs.push({ id: state.logSeq, time: nowLogTime(), type, text, manual: !!manual });
+    renderLog();
+  }
+
+  function renderLog(){
+    els.logEmpty.style.display = state.logs.length ? 'none' : 'block';
+    els.logList.innerHTML = state.logs.map(l =>
+      '<div class="log-row type-'+l.type+'" data-id="'+l.id+'">' +
+        '<span class="log-time">['+l.time+']</span>' +
+        '<span class="log-text">' + (l.manual ? '<span class="log-tag">NOTE</span>' : '') + escapeHtml(l.text) + '</span>' +
+        '<button class="log-del" data-id="'+l.id+'" type="button" title="ลบเหตุการณ์นี้">✕</button>' +
+      '</div>'
+    ).join('');
+  }
+
+  els.logList.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.log-del');
+    if(!btn) return;
+    const id = parseInt(btn.dataset.id, 10);
+    state.logs = state.logs.filter(l => l.id !== id);
+    renderLog();
+  });
+
+  function addManualLogEntry(){
+    const val = (els.manualLogInput.value || '').trim();
+    if(!val) return;
+    addLog('manual', val, true);
+    els.manualLogInput.value = '';
+    els.manualLogInput.focus();
+  }
+
+  function tagLabel(l){
+    if(l.manual) return 'NOTE';
+    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL' };
+    return map[l.type] || String(l.type).toUpperCase();
+  }
+
+  function reportMeta(){
+    const now = new Date(netNow());
+    const curOff = currentOffsetMs();
+    const curExDate = new Date(state.startBaseDate.getTime() + curOff);
+    const dayNum = Math.floor((new Date(curExDate.getFullYear(),curExDate.getMonth(),curExDate.getDate()) -
+      new Date(state.startBaseDate.getFullYear(),state.startBaseDate.getMonth(),state.startBaseDate.getDate())) / 86400000);
+    return {
+      generatedAt: pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+' '+now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate()),
+      startex: state.startClockStr,
+      dayNum: dayNum,
+      exNow: pad(curExDate.getHours())+':'+pad(curExDate.getMinutes())+':'+pad(curExDate.getSeconds()),
+      count: state.logs.length
+    };
+  }
+
+  function buildLogRowsHtml(){
+    return state.logs.map(l =>
+      '<tr><td class="pt-time">'+escapeHtml('['+l.time+']')+'</td><td class="pt-tag">'+escapeHtml(tagLabel(l))+'</td><td>'+escapeHtml(l.text)+'</td></tr>'
+    ).join('');
+  }
+
+  function buildReportBodyHtml(meta){
+    return '<h1>TTX Exercise Control Log</h1>'+
+      '<div class="print-sub sub">RTAF RCC · SAR Exercise Control</div>'+
+      '<div class="print-meta meta">'+
+        'สร้างเมื่อ: '+escapeHtml(meta.generatedAt)+' &nbsp;|&nbsp; '+
+        'STARTEX: '+escapeHtml(meta.startex)+' &nbsp;|&nbsp; '+
+        'สถานะปัจจุบัน: D+'+meta.dayNum+' '+escapeHtml(meta.exNow)+' &nbsp;|&nbsp; '+
+        'จำนวนบันทึก: '+meta.count+' รายการ'+
+      '</div>'+
+      '<table><thead><tr><th style="width:95px;">เวลา (จริง)</th><th style="width:85px;">ประเภท</th><th>รายละเอียด</th></tr></thead>'+
+      '<tbody>'+buildLogRowsHtml()+'</tbody></table>';
+  }
+
+  async function requireLogsOrWarn(){
+    if(state.logs.length) return true;
+    await openModal({ title:'ไม่มีบันทึกให้ export', message:'ยังไม่มีบันทึกเหตุการณ์ในระบบ', hideCancel:true, confirmText:'เข้าใจแล้ว' });
+    return false;
+  }
+
+  async function exportPdf(){
+    if(!(await requireLogsOrWarn())) return;
+    els.printArea.innerHTML = buildReportBodyHtml(reportMeta());
+    window.print();
+  }
+
+  async function exportWord(){
+    if(!(await requireLogsOrWarn())) return;
+    const meta = reportMeta();
+    const html =
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
+      '<head><meta charset="utf-8"><title>TTX Exercise Control Log</title>'+
+      '<style>body{font-family:Calibri,Arial,"Noto Sans Thai",sans-serif;} h1{font-size:20px;margin-bottom:2px;} '+
+      '.sub{color:#555;font-size:12px;margin-bottom:4px;} .meta{font-size:11px;color:#333;border-top:1px solid #999;border-bottom:1px solid #999;padding:6px 0;margin:10px 0 14px;} '+
+      'table{border-collapse:collapse;width:100%;font-size:11px;} th,td{border:1px solid #999;padding:5px 7px;text-align:left;vertical-align:top;} th{background:#eee;}</style>'+
+      '</head><body>'+ buildReportBodyHtml(meta) +'</body></html>';
+    const blob = new Blob(['\ufeff', html], { type:'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const now = new Date(netNow());
+    const stamp = now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+'-'+pad(now.getHours())+pad(now.getMinutes());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ttx-exercise-log-'+stamp+'.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 4000);
+  }
+
+  els.btnExportPdf.addEventListener('click', exportPdf);
+  els.btnExportWord.addEventListener('click', exportWord);
+
+  function flashClock(el){
+    const target = el || els.exTime;
+    target.classList.remove('jump');
+    void target.offsetWidth;
+    target.classList.add('jump');
+  }
+
+  function updateStatusPill(){
+    els.statusPill.classList.remove('running','paused');
+    if(state.running){
+      els.statusPill.classList.add('running');
+      els.statusText.textContent = 'RUNNING';
+    } else if(state.baseOffsetMs > 0){
+      els.statusPill.classList.add('paused');
+      els.statusText.textContent = 'PAUSED';
+    } else {
+      els.statusText.textContent = 'STOPPED';
+    }
+  }
+
+  function updateButtons(){
+    els.btnPause.disabled = !state.running;
+    els.btnPause.textContent = state.running ? 'PAUSE' : (state.baseOffsetMs>0 ? 'RESUME' : 'PAUSE');
+    els.btnStart.disabled = state.running;
+    els.btnStart.textContent = (!state.running && state.baseOffsetMs>0) ? 'RESUME' : 'START';
+  }
+
+  function render(){
+    const off = currentOffsetMs();
+    const exDate = new Date(state.startBaseDate.getTime() + off);
+    els.exTime.textContent = pad(exDate.getHours())+':'+pad(exDate.getMinutes())+':'+pad(exDate.getSeconds());
+    const dayNum = Math.floor((new Date(exDate.getFullYear(),exDate.getMonth(),exDate.getDate()) - new Date(state.startBaseDate.getFullYear(),state.startBaseDate.getMonth(),state.startBaseDate.getDate())) / 86400000);
+    els.dayCount.textContent = 'D+' + dayNum;
+    els.startexOut.textContent = state.startClockStr;
+    const rt = new Date(netNow());
+    els.realTimeBig.textContent = pad(rt.getHours())+':'+pad(rt.getMinutes())+':'+pad(rt.getSeconds());
+    updateStatusPill();
+    updateButtons();
+  }
+
+  function start(){
+    if(state.running) return;
+    state.running = true;
+    state.runStartReal = netNow();
+    addLog(state.baseOffsetMs>0 ? 'resume':'start', state.baseOffsetMs>0 ? 'RESUMED exercise clock' : 'EXERCISE STARTED');
+    render();
+  }
+
+  function pause(){
+    if(!state.running) return;
+    state.baseOffsetMs = currentOffsetMs();
+    state.running = false;
+    state.runStartReal = null;
+    addLog('pause', 'PAUSED exercise clock');
+    render();
+  }
+
+  async function reset(){
+    const ok = await openModal({
+      title: 'รีเซ็ตนาฬิกาฝึก',
+      message: 'จะรีเซ็ตนาฬิกาฝึก และล้างบันทึกเหตุการณ์ทั้งหมด ต้องการดำเนินการต่อหรือไม่?',
+      confirmText: 'รีเซ็ต',
+      danger: true
+    });
+    if(!ok) return;
+    state.running = false;
+    state.baseOffsetMs = 0;
+    state.runStartReal = null;
+    state.logs = [];
+    renderLog();
+    addLog('reset', 'EXERCISE RESET');
+    render();
+  }
+
+  function adjust(minutes){
+    if(minutes === 0 || Number.isNaN(minutes)) return;
+    const ms = minutes*60000;
+    state.baseOffsetMs = currentOffsetMs() + ms;
+    if(state.running){ state.runStartReal = netNow(); }
+    const exDate = new Date(state.startBaseDate.getTime() + state.baseOffsetMs);
+    const newStr = pad(exDate.getHours())+':'+pad(exDate.getMinutes())+':'+pad(exDate.getSeconds());
+    const sign = minutes > 0 ? '+' : '−';
+    addLog('adjust', 'TIME JUMP '+sign+Math.abs(minutes)+' min → '+newStr);
+    flashClock(els.exTime);
+    render();
+  }
+
+  els.btnStart.addEventListener('click', start);
+  els.btnPause.addEventListener('click', ()=>{ state.running ? pause() : start(); });
+  els.btnReset.addEventListener('click', reset);
+
+  document.querySelectorAll('.btn-adj').forEach(btn=>{
+    btn.addEventListener('click', ()=> adjust(parseInt(btn.dataset.min,10)));
+  });
+
+  els.btnCustomAdd.addEventListener('click', ()=>{
+    const v = parseInt(els.customMin.value,10);
+    if(!v) return;
+    adjust(Math.abs(v));
+    els.customMin.value='';
+  });
+  els.btnCustomSub.addEventListener('click', ()=>{
+    const v = parseInt(els.customMin.value,10);
+    if(!v) return;
+    adjust(-Math.abs(v));
+    els.customMin.value='';
+  });
+  els.customMin.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); els.btnCustomAdd.click(); }
+  });
+
+  els.startInput.addEventListener('change', ()=>{
+    state.startClockStr = els.startInput.value || "08:00";
+    state.startBaseDate = baseStartDate();
+    render();
+  });
+
+  els.btnClearLog.addEventListener('click', async ()=>{
+    if(!state.logs.length) return;
+    const autoCount = state.logs.filter(l => !l.manual).length;
+    if(autoCount === 0){
+      await openModal({
+        title: 'ไม่มีบันทึกอัตโนมัติให้ล้าง',
+        message: 'มีแต่บันทึกที่พิมพ์เอง (NOTE) เท่านั้น ซึ่งจะไม่ถูกล้างด้วยปุ่มนี้ ถ้าต้องการลบ ให้กด ✕ ที่รายการนั้นแทน',
+        hideCancel: true,
+        confirmText: 'เข้าใจแล้ว'
+      });
+      return;
+    }
+    const ok = await openModal({
+      title: 'ล้างบันทึกเหตุการณ์',
+      message: 'จะล้างบันทึกเหตุการณ์อัตโนมัติทั้งหมด ('+autoCount+' รายการ) โดยเก็บบันทึกที่พิมพ์เอง (NOTE) ไว้ ต้องการดำเนินการต่อหรือไม่?',
+      confirmText: 'ล้างบันทึก',
+      danger: true
+    });
+    if(!ok) return;
+    state.logs = state.logs.filter(l => l.manual);
+    renderLog();
+  });
+
+  els.btnSync.addEventListener('click', ()=> syncNetworkTime(false));
+  els.btnManualSync.addEventListener('click', manualSync);
+  els.btnManualExercise.addEventListener('click', manualSetExercise);
+  els.btnSyncExToReal.addEventListener('click', syncExerciseToReal);
+  els.btnAddManualLog.addEventListener('click', addManualLogEntry);
+  els.manualLogInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); addManualLogEntry(); }
+  });
+
+  // init
+  state.startClockStr = els.startInput.value || "08:00";
+  state.startBaseDate = baseStartDate();
+  renderLog();
+  updateSyncBadge();
+  render();
+  setInterval(render, 250);
+  syncNetworkTime(true);
+  setInterval(()=> syncNetworkTime(true), 10*60*1000);
+})();
+</script>
+
+</body>
+</html>

@@ -63,28 +63,28 @@
   }
 
   :root[data-theme="military"]{
-    --bg: #0A1420;
-    --bg-glow: #16283a;
-    --panel: #0F1D2C;
-    --panel-2: #0B1622;
-    --border: #26394E;
-    --divider: #1F3244;
-    --text: #E3EAF3;
-    --muted: #7C93A8;
-    --amber: #D6A34A;
-    --amber-dim: #5B4523;
-    --amber-rgb: 214,163,74;
-    --on-amber: #241704;
-    --cyan: #5FA6C9;
-    --cyan-rgb: 95,166,201;
-    --on-cyan: #06202E;
-    --green: #7FA65A;
-    --green-dim: #33421F;
-    --green-rgb: 127,166,90;
-    --on-green: #0E1B08;
-    --red: #B3524A;
-    --red-dim: #4A211D;
-    --red-rgb: 179,82,74;
+    --bg: #10140C;
+    --bg-glow: #263218;
+    --panel: #1A2013;
+    --panel-2: #13170D;
+    --border: #3E4E2C;
+    --divider: #2E3A20;
+    --text: #EAE6D6;
+    --muted: #8C9678;
+    --amber: #C99A3E;
+    --amber-dim: #5C4820;
+    --amber-rgb: 201,154,62;
+    --on-amber: #201502;
+    --cyan: #9BA37E;
+    --cyan-rgb: 155,163,126;
+    --on-cyan: #12160D;
+    --green: #6FBF3F;
+    --green-dim: #2E4416;
+    --green-rgb: 111,191,63;
+    --on-green: #0E1A05;
+    --red: #B3462F;
+    --red-dim: #4A2016;
+    --red-rgb: 179,70,47;
     --on-red: #FFFFFF;
     --time-scheme: dark;
   }
@@ -116,13 +116,26 @@
     content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
     opacity:0; transition:opacity .25s ease;
     background:
-      radial-gradient(ellipse 480px 340px at 12% 16%, rgba(110,130,95,.5), transparent 60%),
-      radial-gradient(ellipse 560px 380px at 84% 6%, rgba(35,58,80,.55), transparent 55%),
-      radial-gradient(ellipse 420px 460px at 60% 66%, rgba(90,110,80,.45), transparent 60%),
-      radial-gradient(ellipse 540px 320px at 6% 82%, rgba(40,65,88,.5), transparent 55%),
-      radial-gradient(ellipse 400px 300px at 94% 90%, rgba(75,98,72,.4), transparent 55%);
+      radial-gradient(ellipse 480px 340px at 12% 16%, rgba(120,140,80,.55), transparent 60%),
+      radial-gradient(ellipse 560px 380px at 84% 6%, rgba(45,38,26,.6), transparent 55%),
+      radial-gradient(ellipse 420px 460px at 60% 66%, rgba(95,115,65,.5), transparent 60%),
+      radial-gradient(ellipse 540px 320px at 6% 82%, rgba(55,46,30,.55), transparent 55%),
+      radial-gradient(ellipse 400px 300px at 94% 90%, rgba(80,100,55,.45), transparent 55%);
   }
   :root[data-theme="military"] body::before{ opacity:1; }
+
+  .card{ isolation:isolate; }
+  .card::before{
+    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    opacity:0; transition:opacity .25s ease;
+    background:
+      radial-gradient(ellipse 220px 150px at 10% 15%, rgba(120,140,80,.4), transparent 65%),
+      radial-gradient(ellipse 260px 170px at 85% 10%, rgba(50,42,28,.45), transparent 60%),
+      radial-gradient(ellipse 200px 190px at 55% 80%, rgba(95,115,65,.35), transparent 65%),
+      radial-gradient(ellipse 240px 160px at 8% 88%, rgba(45,38,25,.4), transparent 60%),
+      radial-gradient(ellipse 190px 150px at 92% 70%, rgba(85,105,58,.3), transparent 60%);
+  }
+  :root[data-theme="military"] .card::before{ opacity:1; }
 
   .app{
     width:100%; max-width:1180px;
@@ -513,23 +526,22 @@
   }
 
   .theme-switch{
-    display:flex; justify-content:flex-end; align-items:center; gap:6px;
-    margin-bottom:12px; flex-wrap:wrap;
+    display:flex; justify-content:flex-end; margin-bottom:12px;
   }
-  .theme-switch-label{
-    font-size:10.5px; letter-spacing:.1em; color:var(--muted);
-    text-transform:uppercase; margin-right:2px;
-  }
-  .theme-btn{
+  .theme-toggle{
+    display:inline-flex; align-items:center; gap:7px;
     font-family:var(--sans); font-size:10.5px; font-weight:700;
     letter-spacing:.05em; text-transform:uppercase;
-    padding:5px 12px; border-radius:999px; border:1px solid var(--border);
+    padding:6px 13px; border-radius:999px; border:1px solid var(--border);
     background:var(--panel-2); color:var(--muted); cursor:pointer;
     transition:filter .12s ease, color .12s ease, border-color .12s ease;
   }
-  .theme-btn:hover{ color:var(--text); border-color:var(--cyan); }
-  .theme-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
-  .theme-btn.active{ color:var(--cyan); border-color:var(--cyan); background:rgba(var(--cyan-rgb),.12); }
+  .theme-toggle:hover{ color:var(--text); border-color:var(--cyan); }
+  .theme-toggle:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .theme-toggle-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--cyan);
+    box-shadow:0 0 6px var(--cyan-soft); flex:0 0 auto;
+  }
 </style>
 </head>
 <body>
@@ -545,11 +557,11 @@
 
 <div class="app">
 
-  <div class="theme-switch" id="themeSwitch" role="group" aria-label="เลือกธีม">
-    <span class="theme-switch-label">ธีม</span>
-    <button class="theme-btn" data-theme="default" type="button">ปกติ</button>
-    <button class="theme-btn" data-theme="bright" type="button">สว่าง</button>
-    <button class="theme-btn" data-theme="military" type="button">ทหาร</button>
+  <div class="theme-switch">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cycle theme">
+      <span class="theme-toggle-dot" id="themeToggleDot"></span>
+      THEME: <span id="themeToggleLabel">DEFAULT</span>
+    </button>
   </div>
 
   <div class="layout">
@@ -707,7 +719,8 @@
     btnExportPdf: document.getElementById('btnExportPdf'),
     btnExportWord: document.getElementById('btnExportWord'),
     printArea: document.getElementById('printArea'),
-    themeButtons: document.querySelectorAll('.theme-btn'),
+    themeToggle: document.getElementById('themeToggle'),
+    themeToggleLabel: document.getElementById('themeToggleLabel'),
     modalOverlay: document.getElementById('modalOverlay'),
     modalTitle: document.getElementById('modalTitle'),
     modalMessage: document.getElementById('modalMessage'),
@@ -1211,24 +1224,28 @@
   });
 
   const THEME_KEY = 'ttxTheme';
+  const THEME_ORDER = ['default', 'bright', 'military'];
+  const THEME_LABELS = { default: 'DEFAULT', bright: 'BRIGHT', military: 'MILITARY' };
+
   function applyTheme(theme){
-    if(theme === 'bright' || theme === 'military'){
-      document.documentElement.setAttribute('data-theme', theme);
-    } else {
-      theme = 'default';
-      document.documentElement.removeAttribute('data-theme');
-    }
-    els.themeButtons.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+    if(!THEME_ORDER.includes(theme)) theme = 'default';
+    if(theme === 'default'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', theme); }
+    els.themeToggleLabel.textContent = THEME_LABELS[theme];
     try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+    return theme;
   }
-  els.themeButtons.forEach(b => {
-    b.addEventListener('click', () => applyTheme(b.dataset.theme));
+
+  let currentTheme = 'default';
+  els.themeToggle.addEventListener('click', ()=>{
+    const next = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme) + 1) % THEME_ORDER.length];
+    currentTheme = applyTheme(next);
   });
 
   // init
   let savedTheme = 'default';
   try{ savedTheme = localStorage.getItem(THEME_KEY) || 'default'; }catch(e){}
-  applyTheme(savedTheme);
+  currentTheme = applyTheme(savedTheme);
   state.startClockStr = els.startInput.value || "08:00";
   state.startBaseDate = baseStartDate();
   renderLog();

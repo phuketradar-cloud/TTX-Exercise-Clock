@@ -278,8 +278,10 @@
   }
   .startline label{ letter-spacing:.02em; }
   .startline input[type="time"]{
-    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
-    font-family:var(--mono); font-size:13px; padding:5px 8px; border-radius:7px;
+    background:var(--panel-2); border:1px solid var(--border); color:var(--green);
+    font-family:var(--mono); font-variant-numeric:tabular-nums;
+    font-size:clamp(26px, 6vw, 44px); font-weight:600; letter-spacing:.03em;
+    padding:5px 10px; border-radius:7px;
     color-scheme: var(--time-scheme);
   }
   .startline input[type="time"]:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }

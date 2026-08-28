@@ -560,15 +560,18 @@
   .phase-steps{ display:flex; gap:8px; flex-wrap:wrap; flex:1 1 auto; }
   .phase-btn{
     display:flex; flex-direction:column; align-items:center; gap:2px;
-    font-family:var(--sans); padding:6px 14px; border-radius:6px;
+    font-family:var(--sans); padding:6px 14px 8px; border-radius:6px;
     border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
     cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease, box-shadow .15s ease;
     flex:1 1 0; min-width:108px;
   }
   .phase-btn:hover{ border-color:var(--cyan); color:var(--text); }
   .phase-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
-  .phase-code{ font-size:12px; font-weight:800; letter-spacing:.06em; }
-  .phase-name{ font-size:9.5px; letter-spacing:.03em; opacity:.8; }
+  .phase-code{
+    font-family:var(--mono); font-variant-numeric:tabular-nums;
+    font-size:clamp(26px, 6vw, 44px); font-weight:600; letter-spacing:.03em;
+  }
+  .phase-name{ font-size:10.5px; letter-spacing:.05em; opacity:.8; text-transform:uppercase; }
   .phase-btn.active[data-phase="incerfa"]{
     border-color:var(--cyan); color:var(--cyan); background:rgba(var(--cyan-rgb),.12);
     box-shadow:0 0 14px -4px rgba(var(--cyan-rgb),.5);
@@ -612,15 +615,15 @@
     <div class="phase-steps">
       <button class="phase-btn" data-phase="incerfa" type="button">
         <span class="phase-code">INCERFA</span>
-        <span class="phase-name">ระยะไม่แน่ใจ</span>
+        <span class="phase-name">Uncertainty Phase</span>
       </button>
       <button class="phase-btn" data-phase="alerfa" type="button">
         <span class="phase-code">ALERFA</span>
-        <span class="phase-name">ระยะเฝ้าระวัง</span>
+        <span class="phase-name">Alert Phase</span>
       </button>
       <button class="phase-btn" data-phase="detresfa" type="button">
         <span class="phase-code">DETRESFA</span>
-        <span class="phase-name">ระยะวิกฤต</span>
+        <span class="phase-name">Distress Phase</span>
       </button>
     </div>
   </div>
@@ -1103,9 +1106,9 @@
   }
 
   const PHASE_LABELS = {
-    incerfa: 'INCERFA (ระยะไม่แน่ใจ)',
-    alerfa: 'ALERFA (ระยะเฝ้าระวัง)',
-    detresfa: 'DETRESFA (ระยะวิกฤต)'
+    incerfa: 'INCERFA (Uncertainty Phase)',
+    alerfa: 'ALERFA (Alert Phase)',
+    detresfa: 'DETRESFA (Distress Phase)'
   };
 
   function updatePhaseUI(){

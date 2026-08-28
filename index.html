@@ -957,7 +957,7 @@
   }
 
   function nowLogTime(){
-    const d = new Date(netNow());
+    const d = new Date(state.startBaseDate.getTime() + currentOffsetMs());
     return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
   }
 

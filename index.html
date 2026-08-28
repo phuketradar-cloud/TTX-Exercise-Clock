@@ -967,10 +967,42 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  const STATE_KEY = 'ttxExerciseState';
+  function saveState(){
+    try{
+      localStorage.setItem(STATE_KEY, JSON.stringify({
+        running: state.running,
+        baseOffsetMs: state.baseOffsetMs,
+        runStartReal: state.runStartReal,
+        startClockStr: state.startClockStr,
+        startBaseDate: state.startBaseDate ? state.startBaseDate.getTime() : null,
+        logs: state.logs,
+        logSeq: state.logSeq
+      }));
+    }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STATE_KEY);
+      if(!raw) return false;
+      const saved = JSON.parse(raw);
+      state.running = !!saved.running;
+      state.baseOffsetMs = Number(saved.baseOffsetMs) || 0;
+      state.runStartReal = saved.runStartReal || null;
+      state.startClockStr = saved.startClockStr || "08:00";
+      state.startBaseDate = saved.startBaseDate ? new Date(saved.startBaseDate) : baseStartDate();
+      state.logs = Array.isArray(saved.logs) ? saved.logs : [];
+      state.logSeq = Number(saved.logSeq) || 0;
+      return true;
+    }catch(e){ return false; }
+  }
+
   function addLog(type, text, manual){
     state.logSeq += 1;
     state.logs.push({ id: state.logSeq, time: nowLogTime(), type, text, manual: !!manual });
     renderLog();
+    saveState();
   }
 
   function renderLog(){
@@ -990,6 +1022,7 @@
     const id = parseInt(btn.dataset.id, 10);
     state.logs = state.logs.filter(l => l.id !== id);
     renderLog();
+    saveState();
   });
 
   function addManualLogEntry(){
@@ -1193,6 +1226,7 @@
     state.startClockStr = els.startInput.value || "08:00";
     state.startBaseDate = baseStartDate();
     render();
+    saveState();
   });
 
   els.btnClearLog.addEventListener('click', async ()=>{
@@ -1216,6 +1250,7 @@
     if(!ok) return;
     state.logs = state.logs.filter(l => l.manual);
     renderLog();
+    saveState();
   });
 
   els.btnSync.addEventListener('click', ()=> syncNetworkTime(false));
@@ -1263,8 +1298,11 @@
   let savedTheme = 'default';
   try{ savedTheme = localStorage.getItem(THEME_KEY) || 'default'; }catch(e){}
   currentTheme = applyTheme(savedTheme);
-  state.startClockStr = els.startInput.value || "08:00";
-  state.startBaseDate = baseStartDate();
+  if(!loadState()){
+    state.startClockStr = els.startInput.value || "08:00";
+    state.startBaseDate = baseStartDate();
+  }
+  els.startInput.value = state.startClockStr;
   renderLog();
   updateSyncBadge();
   render();

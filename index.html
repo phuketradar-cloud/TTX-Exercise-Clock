@@ -1133,7 +1133,7 @@
 
   function updateButtons(){
     els.btnPause.disabled = !state.running;
-    els.btnPause.textContent = state.running ? 'PAUSE' : (state.baseOffsetMs>0 ? 'RESUME' : 'PAUSE');
+    els.btnPause.textContent = 'PAUSE';
     els.btnStart.disabled = state.running;
     els.btnStart.textContent = (!state.running && state.baseOffsetMs>0) ? 'RESUME' : 'START';
   }

@@ -478,6 +478,9 @@
   .log-row.type-adjust .log-text{ color:var(--cyan); }
   .log-row.type-jump-pos .log-text{ color:var(--green); }
   .log-row.type-jump-neg .log-text{ color:var(--red); }
+  .log-row.type-phase-incerfa .log-text{ color:var(--cyan); }
+  .log-row.type-phase-alerfa .log-text{ color:var(--amber); }
+  .log-row.type-phase-detresfa .log-text{ color:var(--red); }
   .log-row.type-sync .log-text{ color:var(--muted); }
   .log-row.type-sync-fail .log-text{ color:var(--red); }
   .log-row.type-manual .log-text{ color:var(--text); }
@@ -544,6 +547,44 @@
     width:7px; height:7px; border-radius:50%; background:var(--cyan);
     box-shadow:0 0 6px var(--cyan-soft); flex:0 0 auto;
   }
+
+  .phase-bar{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    margin-bottom:14px; padding:10px 16px;
+    background:var(--panel); border:1px solid rgba(var(--cyan-rgb),.18); border-radius:2px;
+  }
+  .phase-label{
+    font-size:10.5px; font-weight:700; letter-spacing:.14em; color:var(--muted);
+    text-transform:uppercase; flex:0 0 auto;
+  }
+  .phase-steps{ display:flex; gap:8px; flex-wrap:wrap; flex:1 1 auto; }
+  .phase-btn{
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-family:var(--sans); padding:6px 14px; border-radius:6px;
+    border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
+    cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease, box-shadow .15s ease;
+    flex:1 1 0; min-width:108px;
+  }
+  .phase-btn:hover{ border-color:var(--cyan); color:var(--text); }
+  .phase-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .phase-code{ font-size:12px; font-weight:800; letter-spacing:.06em; }
+  .phase-name{ font-size:9.5px; letter-spacing:.03em; opacity:.8; }
+  .phase-btn.active[data-phase="incerfa"]{
+    border-color:var(--cyan); color:var(--cyan); background:rgba(var(--cyan-rgb),.12);
+    box-shadow:0 0 14px -4px rgba(var(--cyan-rgb),.5);
+  }
+  .phase-btn.active[data-phase="alerfa"]{
+    border-color:var(--amber); color:var(--amber); background:rgba(var(--amber-rgb),.12);
+    box-shadow:0 0 14px -4px rgba(var(--amber-rgb),.5);
+  }
+  .phase-btn.active[data-phase="detresfa"]{
+    border-color:var(--red); color:var(--red); background:rgba(var(--red-rgb),.12);
+    box-shadow:0 0 14px -4px rgba(var(--red-rgb),.5);
+  }
+  @media (max-width:520px){
+    .phase-bar{ flex-direction:column; align-items:stretch; }
+    .phase-btn{ min-width:0; }
+  }
 </style>
 </head>
 <body>
@@ -564,6 +605,24 @@
       <span class="theme-toggle-dot" id="themeToggleDot"></span>
       THEME: <span id="themeToggleLabel">DEFAULT</span>
     </button>
+  </div>
+
+  <div class="phase-bar" id="phaseBar">
+    <span class="phase-label">SAR Phase</span>
+    <div class="phase-steps">
+      <button class="phase-btn" data-phase="incerfa" type="button">
+        <span class="phase-code">INCERFA</span>
+        <span class="phase-name">ระยะไม่แน่ใจ</span>
+      </button>
+      <button class="phase-btn" data-phase="alerfa" type="button">
+        <span class="phase-code">ALERFA</span>
+        <span class="phase-name">ระยะเฝ้าระวัง</span>
+      </button>
+      <button class="phase-btn" data-phase="detresfa" type="button">
+        <span class="phase-code">DETRESFA</span>
+        <span class="phase-name">ระยะวิกฤต</span>
+      </button>
+    </div>
   </div>
 
   <div class="layout">
@@ -690,7 +749,8 @@
     logSeq: 0,
     timeOffsetMs: 0,
     synced: false,
-    syncing: false
+    syncing: false,
+    phase: 'incerfa'
   };
 
   const els = {
@@ -725,6 +785,7 @@
     logCard: document.getElementById('logCard'),
     themeToggle: document.getElementById('themeToggle'),
     themeToggleLabel: document.getElementById('themeToggleLabel'),
+    phaseBtns: document.querySelectorAll('.phase-btn'),
     modalOverlay: document.getElementById('modalOverlay'),
     modalTitle: document.getElementById('modalTitle'),
     modalMessage: document.getElementById('modalMessage'),
@@ -977,7 +1038,8 @@
         startClockStr: state.startClockStr,
         startBaseDate: state.startBaseDate ? state.startBaseDate.getTime() : null,
         logs: state.logs,
-        logSeq: state.logSeq
+        logSeq: state.logSeq,
+        phase: state.phase
       }));
     }catch(e){}
   }
@@ -994,6 +1056,7 @@
       state.startBaseDate = saved.startBaseDate ? new Date(saved.startBaseDate) : baseStartDate();
       state.logs = Array.isArray(saved.logs) ? saved.logs : [];
       state.logSeq = Number(saved.logSeq) || 0;
+      state.phase = PHASE_LABELS[saved.phase] ? saved.phase : 'incerfa';
       return true;
     }catch(e){ return false; }
   }
@@ -1035,9 +1098,32 @@
 
   function tagLabel(l){
     if(l.manual) return 'NOTE';
-    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', 'jump-pos':'ADJUST', 'jump-neg':'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL' };
+    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', 'jump-pos':'ADJUST', 'jump-neg':'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL', 'phase-incerfa':'PHASE', 'phase-alerfa':'PHASE', 'phase-detresfa':'PHASE' };
     return map[l.type] || String(l.type).toUpperCase();
   }
+
+  const PHASE_LABELS = {
+    incerfa: 'INCERFA (ระยะไม่แน่ใจ)',
+    alerfa: 'ALERFA (ระยะเฝ้าระวัง)',
+    detresfa: 'DETRESFA (ระยะวิกฤต)'
+  };
+
+  function updatePhaseUI(){
+    els.phaseBtns.forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.phase === state.phase);
+    });
+  }
+
+  function setPhase(phase){
+    if(!PHASE_LABELS[phase] || phase === state.phase) return;
+    state.phase = phase;
+    updatePhaseUI();
+    addLog('phase-'+phase, 'SAR PHASE → ' + PHASE_LABELS[phase]);
+  }
+
+  els.phaseBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=> setPhase(btn.dataset.phase));
+  });
 
   function reportMeta(){
     const now = new Date(netNow());
@@ -1180,6 +1266,8 @@
     state.baseOffsetMs = 0;
     state.runStartReal = null;
     state.logs = [];
+    state.phase = 'incerfa';
+    updatePhaseUI();
     renderLog();
     addLog('reset', 'EXERCISE RESET');
     render();
@@ -1303,6 +1391,7 @@
     state.startBaseDate = baseStartDate();
   }
   els.startInput.value = state.startClockStr;
+  updatePhaseUI();
   renderLog();
   updateSyncBadge();
   render();

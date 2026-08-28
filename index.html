@@ -476,6 +476,8 @@
   .log-row.type-pause .log-text{ color:var(--amber); }
   .log-row.type-reset .log-text{ color:var(--red); }
   .log-row.type-adjust .log-text{ color:var(--cyan); }
+  .log-row.type-jump-pos .log-text{ color:var(--green); }
+  .log-row.type-jump-neg .log-text{ color:var(--red); }
   .log-row.type-sync .log-text{ color:var(--muted); }
   .log-row.type-sync-fail .log-text{ color:var(--red); }
   .log-row.type-manual .log-text{ color:var(--text); }
@@ -1000,7 +1002,7 @@
 
   function tagLabel(l){
     if(l.manual) return 'NOTE';
-    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL' };
+    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', 'jump-pos':'ADJUST', 'jump-neg':'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL' };
     return map[l.type] || String(l.type).toUpperCase();
   }
 
@@ -1158,7 +1160,7 @@
     const exDate = new Date(state.startBaseDate.getTime() + state.baseOffsetMs);
     const newStr = pad(exDate.getHours())+':'+pad(exDate.getMinutes())+':'+pad(exDate.getSeconds());
     const sign = minutes > 0 ? '+' : '−';
-    addLog('adjust', 'TIME JUMP '+sign+Math.abs(minutes)+' min → '+newStr);
+    addLog(minutes > 0 ? 'jump-pos' : 'jump-neg', 'TIME JUMP '+sign+Math.abs(minutes)+' min → '+newStr);
     flashClock(els.exTime);
     render();
   }

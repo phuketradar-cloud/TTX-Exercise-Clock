@@ -18,11 +18,13 @@ showH1  = input.bool(true, "แสดงกรอบราคา H1",  group = g
 showH4  = input.bool(true, "แสดงกรอบราคา H4",  group = grpH4)
 showD1  = input.bool(true, "แสดงกรอบราคา D1",  group = grpD1)
 
-colM1  = input.color(color.new(color.yellow, 0), "สีกรอบ M1",  group = grpM1)
-colM15 = input.color(color.new(color.aqua,   0), "สีกรอบ M15", group = grpM15)
-colH1  = input.color(color.new(color.orange, 0), "สีกรอบ H1",  group = grpH1)
-colH4  = input.color(color.new(color.purple, 0), "สีกรอบ H4",  group = grpH4)
-colD1  = input.color(color.new(color.red,    0), "สีกรอบ D1",  group = grpD1)
+// เลือกสีให้ห่างกันบนวงล้อสี (สลับโทนร้อน-เย็น) เพื่อให้แยกแต่ละ TF ออกจากกันชัดเจน
+// แม้กรอบจะซ้อนทับกันหลายชั้นก็ตาม
+colM1  = input.color(color.new(#FF00FF, 0), "สีกรอบ M1",  group = grpM1)  // ชมพูบานเย็น (magenta)
+colM15 = input.color(color.new(#00FF66, 0), "สีกรอบ M15", group = grpM15) // เขียวมะนาวสด (lime)
+colH1  = input.color(color.new(#FF9800, 0), "สีกรอบ H1",  group = grpH1)  // ส้ม
+colH4  = input.color(color.new(#2196F3, 0), "สีกรอบ H4",  group = grpH4)  // ฟ้าสด
+colD1  = input.color(color.new(#FF1744, 0), "สีกรอบ D1",  group = grpD1)  // แดงสด
 
 // ---------------- ฟังก์ชันวาดกรอบราคาต่อ Timeframe ----------------
 // หมายเหตุ: ตัวแปรที่ประกาศด้วย var ภายในฟังก์ชันนี้จะคงค่าแยกกันในแต่ละจุดที่เรียกใช้ฟังก์ชัน
@@ -39,7 +41,7 @@ drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
     if showBox and isNewPeriod
         startTime := t
         b := box.new(left = t, top = h, bottom = l, right = time, xloc = xloc.bar_time,
-             border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 85),
+             border_color = boxColor, border_width = 2, bgcolor = color.new(boxColor, 93),
              text = tfLabel, text_color = boxColor, text_size = size.small,
              text_halign = text.align_left, text_valign = text.align_top)
 

@@ -56,8 +56,11 @@ drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
             b := na
 
 // ---------------- เรียกใช้งานแต่ละ Timeframe ----------------
-drawRangeBox("1",   colM1,  "M1",  showM1)
-drawRangeBox("15",  colM15, "M15", showM15)
-drawRangeBox("60",  colH1,  "H1",  showH1)
-drawRangeBox("240", colH4,  "H4",  showH4)
+// หมายเหตุ: ต้องวาดจากกรอบใหญ่สุด -> เล็กสุด (D1 ก่อน, M1 ทีหลังสุด) เพราะ Pine จะวาด
+// ออบเจ็กต์ที่ถูกสร้างทีหลังทับอยู่บนของก่อนหน้าเสมอ ถ้าวาด M1/M15 ก่อน D1/H4 (ซึ่งมีขนาด
+// ใหญ่กว่าและซ้อนทับพื้นที่เดียวกัน) กรอบเล็กจะถูกกรอบใหญ่ทับจนมองไม่เห็นขอบ
 drawRangeBox("1D",  colD1,  "D1",  showD1)
+drawRangeBox("240", colH4,  "H4",  showH4)
+drawRangeBox("60",  colH1,  "H1",  showH1)
+drawRangeBox("15",  colM15, "M15", showM15)
+drawRangeBox("1",   colM1,  "M1",  showM1)

@@ -12,19 +12,23 @@ grpH1  = "H1"
 grpH4  = "H4"
 grpD1  = "D1"
 
-showM1  = input.bool(true, "แสดงกรอบราคา M1",  group = grpM1)
-showM15 = input.bool(true, "แสดงกรอบราคา M15", group = grpM15)
-showH1  = input.bool(true, "แสดงกรอบราคา H1",  group = grpH1)
-showH4  = input.bool(true, "แสดงกรอบราคา H4",  group = grpH4)
-showD1  = input.bool(true, "แสดงกรอบราคา D1",  group = grpD1)
+// เปิด/ปิด + สี ของแต่ละ TF อยู่บรรทัดเดียวกัน (inline) ภายใต้หัวข้อกลุ่มของตัวเอง
+// เวลาเปิดหน้า Settings ของอินดิเคเตอร์ จะเห็นเป็นแถวแยกของแต่ละ TF ชัดเจนเหมือนแท็บ
+// (Pine Script ไม่รองรับปุ่ม/แท็บคลิกบนกราฟโดยตรง ตัวเปิด-ปิดที่ทำได้จริงคือผ่าน Settings นี้)
+showM1  = input.bool(true, "เปิดกรอบ M1",  group = grpM1,  inline = "M1")
+colM1   = input.color(color.new(#FF00FF, 0), "สี", group = grpM1,  inline = "M1")  // ชมพูบานเย็น (magenta)
 
-// เลือกสีให้ห่างกันบนวงล้อสี (สลับโทนร้อน-เย็น) เพื่อให้แยกแต่ละ TF ออกจากกันชัดเจน
-// แม้กรอบจะซ้อนทับกันหลายชั้นก็ตาม
-colM1  = input.color(color.new(#FF00FF, 0), "สีกรอบ M1",  group = grpM1)  // ชมพูบานเย็น (magenta)
-colM15 = input.color(color.new(#00FF66, 0), "สีกรอบ M15", group = grpM15) // เขียวมะนาวสด (lime)
-colH1  = input.color(color.new(#FF9800, 0), "สีกรอบ H1",  group = grpH1)  // ส้ม
-colH4  = input.color(color.new(#2196F3, 0), "สีกรอบ H4",  group = grpH4)  // ฟ้าสด
-colD1  = input.color(color.new(#FF1744, 0), "สีกรอบ D1",  group = grpD1)  // แดงสด
+showM15 = input.bool(true, "เปิดกรอบ M15", group = grpM15, inline = "M15")
+colM15  = input.color(color.new(#00FF66, 0), "สี", group = grpM15, inline = "M15") // เขียวมะนาวสด (lime)
+
+showH1  = input.bool(true, "เปิดกรอบ H1",  group = grpH1,  inline = "H1")
+colH1   = input.color(color.new(#FF9800, 0), "สี", group = grpH1,  inline = "H1")  // ส้ม
+
+showH4  = input.bool(true, "เปิดกรอบ H4",  group = grpH4,  inline = "H4")
+colH4   = input.color(color.new(#2196F3, 0), "สี", group = grpH4,  inline = "H4")  // ฟ้าสด
+
+showD1  = input.bool(true, "เปิดกรอบ D1",  group = grpD1,  inline = "D1")
+colD1   = input.color(color.new(#FF1744, 0), "สี", group = grpD1,  inline = "D1")  // แดงสด
 
 // ---------------- ฟังก์ชันวาดกรอบราคาต่อ Timeframe ----------------
 // หมายเหตุ: ตัวแปรที่ประกาศด้วย var ภายในฟังก์ชันนี้จะคงค่าแยกกันในแต่ละจุดที่เรียกใช้ฟังก์ชัน

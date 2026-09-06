@@ -44,7 +44,9 @@ drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
         if isNewPeriod
             startTime := t
             b := box.new(left = t, top = h, bottom = l, right = rightTime, xloc = xloc.bar_time,
-                 border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90))
+                 border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90),
+                 text = tfLabel, text_color = boxColor, text_size = size.small,
+                 text_halign = text.align_left, text_valign = text.align_top)
             if not na(lb)
                 label.delete(lb)
             lb := showLabel ? label.new(x = rightTime, y = h, xloc = xloc.bar_time,

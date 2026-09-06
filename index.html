@@ -592,7 +592,23 @@
     .phase-btn{ min-width:0; }
   }
 
-  .blast-card{ margin-top:14px; }
+  .view-switch{
+    display:flex; gap:8px; margin-bottom:14px;
+  }
+  .view-tab{
+    font-family:var(--sans); font-size:11.5px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase;
+    padding:9px 18px; border-radius:999px; border:1px solid var(--border);
+    background:var(--panel-2); color:var(--muted); cursor:pointer;
+    transition:filter .12s ease, color .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .view-tab:hover{ color:var(--text); border-color:var(--cyan); }
+  .view-tab:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .view-tab.active{
+    color:var(--cyan); border-color:var(--cyan); background:rgba(var(--cyan-rgb),.12);
+    box-shadow:0 0 14px -4px rgba(var(--cyan-rgb),.5);
+  }
+  .view-panel[hidden]{ display:none; }
 
   .blast-controls{
     display:grid; grid-template-columns:1.4fr 1fr 1.4fr auto; gap:10px 12px;
@@ -668,6 +684,13 @@
       THEME: <span id="themeToggleLabel">DEFAULT</span>
     </button>
   </div>
+
+  <div class="view-switch" id="viewSwitch">
+    <button class="view-tab active" data-view="clock" type="button">นาฬิกาฝึก</button>
+    <button class="view-tab" data-view="blast" type="button">จำลองระเบิด</button>
+  </div>
+
+  <div class="view-panel" id="viewClock">
 
   <div class="phase-bar" id="phaseBar">
     <span class="phase-label">SAR Phase</span>
@@ -779,6 +802,10 @@
 
   </div>
 
+  </div>
+
+  <div class="view-panel" id="viewBlast" hidden>
+
   <div class="card blast-card" id="blastCard">
     <header>
       <div class="title-block">
@@ -823,6 +850,8 @@
     <p class="blast-disclaimer">
       ระยะอ้างอิงจากตารางมาตรฐานการฝึก (CISA/DHS Bomb Threat Stand-off Chart) ใช้เพื่อการฝึกซ้อมและวางแผนเบื้องต้นในสถานการณ์สมมติเท่านั้น ไม่ใช่คำแนะนำปฏิบัติจริงในเหตุการณ์จริง — เหตุการณ์จริงให้ปฏิบัติตามคำสั่งของหน่วยเก็บกู้วัตถุระเบิด (EOD) เสมอ ระยะสำหรับตัวเลือก "กำหนดเอง" คำนวณโดยประมาณจากกฎการขยายตามรากที่สามของน้ำหนัก (cube-root scaling) ไม่ใช่ค่าจากตารางโดยตรง
     </p>
+  </div>
+
   </div>
 
   <div class="app-credit">design by monsterman1010</div>
@@ -895,6 +924,9 @@
     themeToggle: document.getElementById('themeToggle'),
     themeToggleLabel: document.getElementById('themeToggleLabel'),
     phaseBtns: document.querySelectorAll('.phase-btn'),
+    viewTabs: document.querySelectorAll('.view-tab'),
+    viewClock: document.getElementById('viewClock'),
+    viewBlast: document.getElementById('viewBlast'),
     blastType: document.getElementById('blastType'),
     blastCustomWrap: document.getElementById('blastCustomWrap'),
     blastCustomKg: document.getElementById('blastCustomKg'),
@@ -1273,6 +1305,31 @@
 
   let blastMap = null, blastMarker = null, blastBuildingCircle = null, blastOutdoorCircle = null;
   let blastLastSim = null;
+  let blastMapInitTried = false;
+
+  function ensureBlastMap(){
+    if(blastMapInitTried) return;
+    blastMapInitTried = true;
+    initBlastMap();
+  }
+
+  const VIEW_KEY = 'ttxView';
+  function setView(view){
+    const isBlast = view === 'blast';
+    els.viewClock.hidden = isBlast;
+    els.viewBlast.hidden = !isBlast;
+    els.viewTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.view === (isBlast ? 'blast' : 'clock')));
+    try{ localStorage.setItem(VIEW_KEY, isBlast ? 'blast' : 'clock'); }catch(e){}
+    if(isBlast){
+      ensureBlastMap();
+      if(blastMap) setTimeout(()=> blastMap.invalidateSize(), 60);
+    } else {
+      syncLogCardHeight();
+    }
+  }
+  els.viewTabs.forEach(btn=>{
+    btn.addEventListener('click', ()=> setView(btn.dataset.view));
+  });
 
   function blastPresetById(id){
     return BLAST_PRESETS.find(p => p.id === id) || BLAST_PRESETS[0];
@@ -1422,7 +1479,6 @@
     const pos = getBlastLatLng();
     if(pos) setBlastLatLng(pos.lat, pos.lng);
   });
-  initBlastMap();
 
   function reportMeta(){
     const now = new Date(netNow());
@@ -1685,6 +1741,9 @@
   let savedTheme = 'default';
   try{ savedTheme = localStorage.getItem(THEME_KEY) || 'default'; }catch(e){}
   currentTheme = applyTheme(savedTheme);
+  let savedView = 'clock';
+  try{ savedView = localStorage.getItem(VIEW_KEY) || 'clock'; }catch(e){}
+  setView(savedView);
   if(!loadState()){
     state.startClockStr = els.startInput.value || "08:00";
     state.startBaseDate = baseStartDate();

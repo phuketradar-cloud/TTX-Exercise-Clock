@@ -44,6 +44,9 @@ drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
     // "Return type of one of the 'if' ... blocks is not compatible" ที่เกิดขึ้นเมื่อ
     // แต่ละฝั่งของ if/else คืนค่าคนละชนิด (เช่น label กับ void)
     if showBox and isNewPeriod
+        if not na(b)
+            box.delete(b)
+        b := na
         startTime := t
         b := box.new(left = t, top = h, bottom = l, right = rightTime, xloc = xloc.bar_time,
              border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90),

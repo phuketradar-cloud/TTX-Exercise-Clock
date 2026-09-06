@@ -1,84 +1,60 @@
 //@version=5
 // Multi-Timeframe Price Range Boxes: M1 / M15 / H1 / H4 / D1
-// วาดกรอบราคา (High-Low box) ของแต่ละไทม์เฟรมทับบนชาร์ตหลัก พร้อมป้ายราคาสูงสุด/ต่ำสุด
-indicator("MTF Range Boxes (M1/M15/H1/H4/D1)", shorttitle = "MTF Boxes", overlay = true, max_boxes_count = 60, max_labels_count = 60)
+// วาดกล่องราคาสูงสุด/ต่ำสุดของแต่ละไทม์เฟรม ให้ "เกาะติด" อยู่ทางขวาของแท่งเทียนล่าสุดเสมอ
+// (ไม่ลากยาวย้อนไปจากจุดเริ่มต้นของแต่ละไทม์เฟรม จึงไม่มีทางไปค้างอยู่ไกลจากราคาปัจจุบัน)
+indicator("MTF Range Boxes (M1/M15/H1/H4/D1)", shorttitle = "MTF Boxes", overlay = true, max_boxes_count = 10)
 
 // ---------------- Inputs ----------------
-grpM1  = "M1"
-grpM15 = "M15"
-grpH1  = "H1"
-grpH4  = "H4"
-grpD1  = "D1"
-grpOpt = "ตั้งค่าทั่วไป"
+grpShow = "แสดง/ซ่อน"
+grpCol  = "สีกรอบ"
+grpBox  = "ขนาดกรอบ"
 
-showM1  = input.bool(true, "แสดงกรอบราคา M1",  group = grpM1)
-showM15 = input.bool(true, "แสดงกรอบราคา M15", group = grpM15)
-showH1  = input.bool(true, "แสดงกรอบราคา H1",  group = grpH1)
-showH4  = input.bool(true, "แสดงกรอบราคา H4",  group = grpH4)
-showD1  = input.bool(true, "แสดงกรอบราคา D1",  group = grpD1)
+showM1  = input.bool(true, "M1",  group = grpShow, inline = "show")
+showM15 = input.bool(true, "M15", group = grpShow, inline = "show")
+showH1  = input.bool(true, "H1",  group = grpShow, inline = "show")
+showH4  = input.bool(true, "H4",  group = grpShow, inline = "show")
+showD1  = input.bool(true, "D1",  group = grpShow, inline = "show")
 
-colM1  = input.color(color.new(color.aqua,   0), "สีกรอบ M1",  group = grpM1)
-colM15 = input.color(color.new(color.blue,   0), "สีกรอบ M15", group = grpM15)
-colH1  = input.color(color.new(color.orange, 0), "สีกรอบ H1",  group = grpH1)
-colH4  = input.color(color.new(color.purple, 0), "สีกรอบ H4",  group = grpH4)
-colD1  = input.color(color.new(color.red,    0), "สีกรอบ D1",  group = grpD1)
+colM1  = input.color(color.aqua,   "M1",  group = grpCol, inline = "col")
+colM15 = input.color(color.blue,   "M15", group = grpCol, inline = "col")
+colH1  = input.color(color.orange, "H1",  group = grpCol, inline = "col")
+colH4  = input.color(color.purple, "H4",  group = grpCol, inline = "col")
+colD1  = input.color(color.red,    "D1",  group = grpCol, inline = "col")
 
-extendBars = input.int(3, "ระยะยื่นกรอบไปทางขวา (จำนวนแท่งของชาร์ตหลัก)", minval = 0, maxval = 100, group = grpOpt)
-showLabel  = input.bool(true, "แสดงป้ายชื่อ Timeframe และราคา High/Low", group = grpOpt)
+boxWidth = input.int(4, "ความกว้างกรอบ (แท่ง)",         minval = 1, maxval = 30, group = grpBox)
+boxGap   = input.int(2, "ระยะห่างระหว่างกรอบ (แท่ง)",   minval = 0, maxval = 30, group = grpBox)
 
-// ---------------- ฟังก์ชันวาดกรอบราคาต่อ Timeframe ----------------
-// หมายเหตุ: ตัวแปรที่ประกาศด้วย var ภายในฟังก์ชันนี้จะคงค่าแยกกันในแต่ละจุดที่เรียกใช้ฟังก์ชัน
-// (แต่ละบรรทัดเรียกด้านล่างถือเป็นคนละ instance) จึงสามารถเก็บ box/label ของแต่ละ TF แยกจากกันได้
-drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
-    [h, l, t] = request.security(syminfo.tickerid, tfStr, [high, low, time], lookahead = barmerge.lookahead_off)
+// ---------------- ฟังก์ชันวาดกรอบราคา ----------------
+// วาด/อัปเดตเฉพาะที่แท่งล่าสุด (barstate.islast) เท่านั้น และวางตำแหน่งอิงจาก
+// bar_index ปัจจุบัน + slotIndex เสมอ กรอบจึงขยับตามไปกับแท่งเทียนล่าสุดตลอดเวลา
+drawSlotBox(tfStr, boxColor, tfLabel, show, slotIndex) =>
+    [h, l] = request.security(syminfo.tickerid, tfStr, [high, low], lookahead = barmerge.lookahead_off)
 
-    var box   b         = na
-    var label lb        = na
-    var int   startTime = na
+    var box b = na
 
-    barSpacing = time - time[1]
-    rightTime  = time + extendBars * (na(barSpacing) ? 0 : barSpacing)
-    isNewPeriod = na(startTime) or t != startTime
-
-    // หมายเหตุ: ใช้ if เดี่ยว (ไม่มี else) แยกแต่ละกรณี เพื่อเลี่ยงปัญหา
-    // "Return type of one of the 'if' ... blocks is not compatible" ที่เกิดขึ้นเมื่อ
-    // แต่ละฝั่งของ if/else คืนค่าคนละชนิด (เช่น label กับ void)
-    if showBox and isNewPeriod
+    if barstate.islast and show
+        leftBar  = bar_index + 1 + slotIndex * (boxWidth + boxGap)
+        rightBar = leftBar + boxWidth
+        txt = tfLabel + "\nH " + str.tostring(h, format.mintick) + "\nL " + str.tostring(l, format.mintick)
+        if na(b)
+            b := box.new(left = leftBar, top = h, bottom = l, right = rightBar, xloc = xloc.bar_index,
+                 border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 85),
+                 text = txt, text_color = boxColor, text_size = size.small)
         if not na(b)
-            box.delete(b)
-        b := na
-        startTime := t
-        b := box.new(left = t, top = h, bottom = l, right = rightTime, xloc = xloc.bar_time,
-             border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90),
-             text = tfLabel, text_color = boxColor, text_size = size.small,
-             text_halign = text.align_left, text_valign = text.align_top)
-        if not na(lb)
-            label.delete(lb)
-        lb := na
-        if showLabel
-            lb := label.new(x = rightTime, y = h, xloc = xloc.bar_time,
-                 text = tfLabel + "\nH: " + str.tostring(h, format.mintick) + "\nL: " + str.tostring(l, format.mintick),
-                 style = label.style_label_left, color = color.new(boxColor, 0), textcolor = color.white, size = size.small)
+            box.set_left(b, leftBar)
+            box.set_right(b, rightBar)
+            box.set_top(b, h)
+            box.set_bottom(b, l)
+            box.set_text(b, txt)
 
-    if showBox and not isNewPeriod
-        box.set_top(b, h)
-        box.set_bottom(b, l)
-        box.set_right(b, rightTime)
-        if not na(lb)
-            label.set_xy(lb, rightTime, h)
-            label.set_text(lb, tfLabel + "\nH: " + str.tostring(h, format.mintick) + "\nL: " + str.tostring(l, format.mintick))
-
-    if not showBox
+    if barstate.islast and not show
         if not na(b)
             box.delete(b)
             b := na
-        if not na(lb)
-            label.delete(lb)
-            lb := na
 
-// ---------------- เรียกใช้งานแต่ละ Timeframe ----------------
-drawRangeBox("1",   colM1,  "M1",  showM1)
-drawRangeBox("15",  colM15, "M15", showM15)
-drawRangeBox("60",  colH1,  "H1",  showH1)
-drawRangeBox("240", colH4,  "H4",  showH4)
-drawRangeBox("1D",  colD1,  "D1",  showD1)
+// ---------------- เรียกใช้งานแต่ละ Timeframe (slotIndex 0-4 กันไม่ให้กรอบทับกัน) ----------------
+drawSlotBox("1",   colM1,  "M1",  showM1,  0)
+drawSlotBox("15",  colM15, "M15", showM15, 1)
+drawSlotBox("60",  colH1,  "H1",  showH1,  2)
+drawSlotBox("240", colH4,  "H4",  showH4,  3)
+drawSlotBox("1D",  colD1,  "D1",  showD1,  4)

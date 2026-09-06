@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAR TTX — Exercise Clock</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root{
     --bg: #060A13;
@@ -590,6 +591,62 @@
     .phase-bar{ flex-direction:column; align-items:stretch; }
     .phase-btn{ min-width:0; }
   }
+
+  .blast-card{ margin-top:14px; }
+
+  .blast-controls{
+    display:grid; grid-template-columns:1.4fr 1fr 1.4fr auto; gap:10px 12px;
+    align-items:end; margin-bottom:14px;
+  }
+  @media (max-width:860px){
+    .blast-controls{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:520px){
+    .blast-controls{ grid-template-columns:1fr; }
+  }
+
+  .blast-field{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+  .blast-field label{
+    font-size:11px; letter-spacing:.05em; color:var(--muted); text-transform:uppercase;
+  }
+  .blast-field select, .blast-field input[type="number"]{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--sans); font-size:13px; padding:9px 10px; border-radius:8px;
+    width:100%;
+  }
+  .blast-field select:focus-visible, .blast-field input:focus-visible{
+    outline:2px solid var(--cyan); outline-offset:1px;
+  }
+  .blast-coords{ display:flex; gap:8px; }
+  .blast-coords input{ font-family:var(--mono); }
+
+  .blast-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .blast-actions button{ padding:9px 12px; white-space:nowrap; }
+
+  .blast-map{
+    width:100%; height:420px; border-radius:6px; border:1px solid var(--border);
+    background:var(--panel-2); position:relative; z-index:0;
+  }
+  .blast-map .blast-map-msg{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:20px; font-size:12.5px; color:var(--muted);
+  }
+
+  .blast-result{ margin-top:12px; }
+  .blast-legend{ display:flex; gap:18px; flex-wrap:wrap; font-size:13px; }
+  .blast-legend-item{ display:flex; align-items:center; gap:7px; color:var(--text); }
+  .blast-legend-item i{
+    width:11px; height:11px; border-radius:50%; flex:0 0 auto; display:inline-block;
+  }
+  .blast-legend-item.building i{ background:var(--red); box-shadow:0 0 6px rgba(var(--red-rgb),.5); }
+  .blast-legend-item.outdoor i{ background:var(--amber); box-shadow:0 0 6px rgba(var(--amber-rgb),.5); }
+  .blast-legend-item b{ font-family:var(--mono); }
+
+  .blast-disclaimer{
+    font-size:11px; color:var(--muted); line-height:1.5; margin:12px 0 0;
+  }
+
+  .log-row.type-blast .log-text{ color:var(--red); }
 </style>
 </head>
 <body>
@@ -722,6 +779,52 @@
 
   </div>
 
+  <div class="card blast-card" id="blastCard">
+    <header>
+      <div class="title-block">
+        <span class="eyebrow">Hazard Simulation</span>
+        <h1>จำลองรัศมีการเกิดระเบิด</h1>
+      </div>
+    </header>
+
+    <div class="blast-controls">
+      <div class="blast-field">
+        <label for="blastType">ประเภทวัตถุระเบิด</label>
+        <select id="blastType"></select>
+      </div>
+      <div class="blast-field" id="blastCustomWrap" style="display:none;">
+        <label for="blastCustomKg">น้ำหนัก TNT เทียบเท่า (กก.)</label>
+        <input type="number" id="blastCustomKg" min="0.1" step="0.1" placeholder="เช่น 50" inputmode="decimal">
+      </div>
+      <div class="blast-field">
+        <label>ตำแหน่งศูนย์กลาง (คลิกบนแผนที่ หรือกรอกพิกัด)</label>
+        <div class="blast-coords">
+          <input type="number" id="blastLat" step="0.000001" placeholder="ละติจูด">
+          <input type="number" id="blastLng" step="0.000001" placeholder="ลองจิจูด">
+        </div>
+      </div>
+      <div class="blast-actions">
+        <button class="btn-sync" id="btnBlastLocate" type="button">ตำแหน่งฉัน</button>
+        <button class="btn-sync" id="btnBlastSimulate" type="button">จำลอง</button>
+        <button class="btn-sync" id="btnBlastClear" type="button">ล้าง</button>
+        <button class="btn-sync" id="btnBlastLog" type="button" disabled>บันทึกลงล็อก</button>
+      </div>
+    </div>
+
+    <div id="explosionMap" class="blast-map"></div>
+
+    <div class="blast-result" id="blastResult" style="display:none;">
+      <div class="blast-legend">
+        <span class="blast-legend-item building"><i></i> รัศมีอพยพในอาคาร (Building Evacuation): <b id="blastBuildingOut">-</b> ม.</span>
+        <span class="blast-legend-item outdoor"><i></i> รัศมีอพยพกลางแจ้ง (Outdoor Evacuation): <b id="blastOutdoorOut">-</b> ม.</span>
+      </div>
+    </div>
+
+    <p class="blast-disclaimer">
+      ระยะอ้างอิงจากตารางมาตรฐานการฝึก (CISA/DHS Bomb Threat Stand-off Chart) ใช้เพื่อการฝึกซ้อมและวางแผนเบื้องต้นในสถานการณ์สมมติเท่านั้น ไม่ใช่คำแนะนำปฏิบัติจริงในเหตุการณ์จริง — เหตุการณ์จริงให้ปฏิบัติตามคำสั่งของหน่วยเก็บกู้วัตถุระเบิด (EOD) เสมอ ระยะสำหรับตัวเลือก "กำหนดเอง" คำนวณโดยประมาณจากกฎการขยายตามรากที่สามของน้ำหนัก (cube-root scaling) ไม่ใช่ค่าจากตารางโดยตรง
+    </p>
+  </div>
+
   <div class="app-credit">design by monsterman1010</div>
 
 </div>
@@ -742,6 +845,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (function(){
   const state = {
@@ -791,6 +895,19 @@
     themeToggle: document.getElementById('themeToggle'),
     themeToggleLabel: document.getElementById('themeToggleLabel'),
     phaseBtns: document.querySelectorAll('.phase-btn'),
+    blastType: document.getElementById('blastType'),
+    blastCustomWrap: document.getElementById('blastCustomWrap'),
+    blastCustomKg: document.getElementById('blastCustomKg'),
+    blastLat: document.getElementById('blastLat'),
+    blastLng: document.getElementById('blastLng'),
+    btnBlastLocate: document.getElementById('btnBlastLocate'),
+    btnBlastSimulate: document.getElementById('btnBlastSimulate'),
+    btnBlastClear: document.getElementById('btnBlastClear'),
+    btnBlastLog: document.getElementById('btnBlastLog'),
+    explosionMap: document.getElementById('explosionMap'),
+    blastResult: document.getElementById('blastResult'),
+    blastBuildingOut: document.getElementById('blastBuildingOut'),
+    blastOutdoorOut: document.getElementById('blastOutdoorOut'),
     modalOverlay: document.getElementById('modalOverlay'),
     modalTitle: document.getElementById('modalTitle'),
     modalMessage: document.getElementById('modalMessage'),
@@ -1103,7 +1220,7 @@
 
   function tagLabel(l){
     if(l.manual) return 'NOTE';
-    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', 'jump-pos':'ADJUST', 'jump-neg':'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL', 'phase-incerfa':'PHASE', 'phase-alerfa':'PHASE', 'phase-detresfa':'PHASE' };
+    const map = { start:'START', resume:'RESUME', pause:'PAUSE', reset:'RESET', adjust:'ADJUST', 'jump-pos':'ADJUST', 'jump-neg':'ADJUST', sync:'SYNC', 'sync-fail':'SYNC FAIL', 'phase-incerfa':'PHASE', 'phase-alerfa':'PHASE', 'phase-detresfa':'PHASE', blast:'BLAST SIM' };
     return map[l.type] || String(l.type).toUpperCase();
   }
 
@@ -1129,6 +1246,183 @@
   els.phaseBtns.forEach(btn=>{
     btn.addEventListener('click', ()=> setPhase(btn.dataset.phase));
   });
+
+  // ---- Explosion radius simulation ----
+  // Reference distances are the published CISA/DHS "Bomb Threat Stand-off Chart"
+  // (training/planning reference only). Kept as a lookup table rather than a single
+  // formula because the real chart is not a smooth curve (fragmentation hazard
+  // dominates for person/hand-carried devices, blast overpressure dominates for
+  // vehicle-borne charges).
+  const BLAST_PRESETS = [
+    { id:'pipe',       label:'ระเบิดท่อ (Pipe Bomb) — 2.3 กก.',                         kg:2.3,     building:21,  outdoor:366 },
+    { id:'belt',       label:'เข็มขัดระเบิดพลีชีพ (Suicide Belt) — 4.5 กก.',              kg:4.5,     building:27,  outdoor:457 },
+    { id:'vest',       label:'เสื้อระเบิดพลีชีพ (Suicide Vest) — 9 กก.',                  kg:9,       building:34,  outdoor:518 },
+    { id:'briefcase',  label:'กระเป๋าเอกสาร/กระเป๋าเดินทาง (Briefcase/Suitcase) — 23 กก.', kg:23,      building:46,  outdoor:564 },
+    { id:'compact',    label:'รถเก๋งขนาดเล็ก (Compact Sedan) — 227 กก.',                  kg:227,     building:98,  outdoor:457 },
+    { id:'sedan',      label:'รถเก๋ง (Sedan) — 454 กก.',                                 kg:454,     building:122, outdoor:534 },
+    { id:'van',        label:'รถตู้ (Passenger/Cargo Van) — 1,814 กก.',                  kg:1814,    building:195, outdoor:838 },
+    { id:'suv',        label:'SUV/รถบรรทุกเล็ก (SUV/Small Delivery Truck) — 4,536 กก.',   kg:4536,    building:263, outdoor:1143 },
+    { id:'movingvan',  label:'รถบรรทุก 6 ล้อ (Moving Van/Water Truck) — 13,608 กก.',      kg:13608,   building:378, outdoor:1981 },
+    { id:'semi',       label:'รถพ่วง (Semi-Trailer) — 27,216 กก.',                       kg:27216,   building:457, outdoor:2134 },
+    { id:'custom',     label:'กำหนดเอง (ระบุน้ำหนัก TNT เทียบเท่า)',                     kg:null,    building:null, outdoor:null }
+  ];
+  // Cube-root scaling constants fitted against the vehicle rows above (m / kg^(1/3)),
+  // used only for the "custom weight" option.
+  const BLAST_CUSTOM_Z_BUILDING = 16.0;
+  const BLAST_CUSTOM_Z_OUTDOOR = 68.0;
+
+  let blastMap = null, blastMarker = null, blastBuildingCircle = null, blastOutdoorCircle = null;
+  let blastLastSim = null;
+
+  function blastPresetById(id){
+    return BLAST_PRESETS.find(p => p.id === id) || BLAST_PRESETS[0];
+  }
+
+  function populateBlastPresets(){
+    els.blastType.innerHTML = BLAST_PRESETS.map(p =>
+      '<option value="'+p.id+'">'+escapeHtml(p.label)+'</option>'
+    ).join('');
+  }
+
+  function initBlastMap(){
+    if(typeof L === 'undefined'){
+      els.explosionMap.innerHTML = '<div class="blast-map-msg">ไม่สามารถโหลดแผนที่ได้ (ต้องเชื่อมต่ออินเทอร์เน็ต) — ลองรีเฟรชหน้านี้อีกครั้งเมื่อมีอินเทอร์เน็ต</div>';
+      return;
+    }
+    try{
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
+      });
+      blastMap = L.map(els.explosionMap, { zoomControl:true }).setView([7.8804, 98.3923], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(blastMap);
+      blastMap.on('click', (e)=>{
+        setBlastLatLng(e.latlng.lat, e.latlng.lng);
+      });
+    }catch(e){
+      els.explosionMap.innerHTML = '<div class="blast-map-msg">โหลดแผนที่ไม่สำเร็จ</div>';
+    }
+  }
+
+  function setBlastLatLng(lat, lng){
+    els.blastLat.value = lat.toFixed(6);
+    els.blastLng.value = lng.toFixed(6);
+    if(!blastMap) return;
+    if(blastMarker){
+      blastMarker.setLatLng([lat, lng]);
+    } else {
+      blastMarker = L.marker([lat, lng]).addTo(blastMap);
+    }
+  }
+
+  function getBlastLatLng(){
+    const lat = parseFloat(els.blastLat.value);
+    const lng = parseFloat(els.blastLng.value);
+    if(Number.isNaN(lat) || Number.isNaN(lng)) return null;
+    return { lat, lng };
+  }
+
+  function locateBlast(){
+    if(!navigator.geolocation){
+      openModal({ title:'ไม่รองรับ', message:'เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่งปัจจุบัน', hideCancel:true, confirmText:'เข้าใจแล้ว' });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        setBlastLatLng(pos.coords.latitude, pos.coords.longitude);
+        if(blastMap) blastMap.setView([pos.coords.latitude, pos.coords.longitude], 15);
+      },
+      ()=>{
+        openModal({ title:'ระบุตำแหน่งไม่สำเร็จ', message:'ไม่สามารถเข้าถึงตำแหน่งปัจจุบันได้ กรุณากรอกพิกัดเอง หรือคลิกบนแผนที่', hideCancel:true, confirmText:'เข้าใจแล้ว' });
+      }
+    );
+  }
+
+  function simulateBlast(){
+    const preset = blastPresetById(els.blastType.value);
+    const pos = getBlastLatLng();
+    if(!pos){
+      openModal({ title:'ยังไม่ได้ระบุตำแหน่ง', message:'กรุณาคลิกบนแผนที่เพื่อปักหมุด หรือกรอกละติจูด/ลองจิจูดก่อนจำลอง', hideCancel:true, confirmText:'เข้าใจแล้ว' });
+      return;
+    }
+    let building, outdoor, kg, label;
+    if(preset.id === 'custom'){
+      kg = parseFloat(els.blastCustomKg.value);
+      if(!(kg > 0)){
+        openModal({ title:'ยังไม่ได้ระบุน้ำหนัก', message:'กรุณาระบุน้ำหนัก TNT เทียบเท่า (กก.) สำหรับตัวเลือก "กำหนดเอง"', hideCancel:true, confirmText:'เข้าใจแล้ว' });
+        return;
+      }
+      building = Math.round(BLAST_CUSTOM_Z_BUILDING * Math.cbrt(kg));
+      outdoor = Math.round(BLAST_CUSTOM_Z_OUTDOOR * Math.cbrt(kg));
+      label = 'กำหนดเอง (' + kg + ' กก. TNT เทียบเท่า, ประมาณการ)';
+    } else {
+      kg = preset.kg;
+      building = preset.building;
+      outdoor = preset.outdoor;
+      label = preset.label;
+    }
+
+    if(blastMap){
+      setBlastLatLng(pos.lat, pos.lng);
+      if(blastBuildingCircle) blastMap.removeLayer(blastBuildingCircle);
+      if(blastOutdoorCircle) blastMap.removeLayer(blastOutdoorCircle);
+      blastOutdoorCircle = L.circle([pos.lat, pos.lng], {
+        radius: outdoor, color:'#F5A623', weight:2, fillColor:'#F5A623', fillOpacity:.08
+      }).addTo(blastMap).bindPopup('รัศมีอพยพกลางแจ้ง: ' + outdoor + ' ม.');
+      blastBuildingCircle = L.circle([pos.lat, pos.lng], {
+        radius: building, color:'#F26363', weight:2, fillColor:'#F26363', fillOpacity:.18
+      }).addTo(blastMap).bindPopup('รัศมีอพยพในอาคาร: ' + building + ' ม.');
+      blastMap.fitBounds(blastOutdoorCircle.getBounds(), { padding:[20,20] });
+    }
+
+    els.blastBuildingOut.textContent = building;
+    els.blastOutdoorOut.textContent = outdoor;
+    els.blastResult.style.display = 'block';
+    els.btnBlastLog.disabled = false;
+    blastLastSim = { label, kg, building, outdoor, lat:pos.lat, lng:pos.lng };
+  }
+
+  function clearBlast(){
+    if(blastMap){
+      if(blastBuildingCircle){ blastMap.removeLayer(blastBuildingCircle); blastBuildingCircle = null; }
+      if(blastOutdoorCircle){ blastMap.removeLayer(blastOutdoorCircle); blastOutdoorCircle = null; }
+      if(blastMarker){ blastMap.removeLayer(blastMarker); blastMarker = null; }
+    }
+    els.blastLat.value = '';
+    els.blastLng.value = '';
+    els.blastResult.style.display = 'none';
+    els.btnBlastLog.disabled = true;
+    blastLastSim = null;
+  }
+
+  function logBlast(){
+    if(!blastLastSim) return;
+    const s = blastLastSim;
+    addLog('blast', 'จำลองระเบิด: ' + s.label + ' ที่ ' + s.lat.toFixed(5) + ', ' + s.lng.toFixed(5) +
+      ' — รัศมีอาคาร ' + s.building + ' ม. / รัศมีกลางแจ้ง ' + s.outdoor + ' ม.');
+  }
+
+  populateBlastPresets();
+  els.blastType.addEventListener('change', ()=>{
+    els.blastCustomWrap.style.display = els.blastType.value === 'custom' ? 'flex' : 'none';
+  });
+  els.btnBlastLocate.addEventListener('click', locateBlast);
+  els.btnBlastSimulate.addEventListener('click', simulateBlast);
+  els.btnBlastClear.addEventListener('click', clearBlast);
+  els.btnBlastLog.addEventListener('click', logBlast);
+  els.blastLat.addEventListener('change', ()=>{
+    const pos = getBlastLatLng();
+    if(pos) setBlastLatLng(pos.lat, pos.lng);
+  });
+  els.blastLng.addEventListener('change', ()=>{
+    const pos = getBlastLatLng();
+    if(pos) setBlastLatLng(pos.lat, pos.lng);
+  });
+  initBlastMap();
 
   function reportMeta(){
     const now = new Date(netNow());

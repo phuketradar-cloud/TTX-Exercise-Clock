@@ -40,26 +40,32 @@ drawRangeBox(tfStr, boxColor, tfLabel, showBox) =>
     rightTime  = time + extendBars * (na(barSpacing) ? 0 : barSpacing)
     isNewPeriod = na(startTime) or t != startTime
 
-    if showBox
-        if isNewPeriod
-            startTime := t
-            b := box.new(left = t, top = h, bottom = l, right = rightTime, xloc = xloc.bar_time,
-                 border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90),
-                 text = tfLabel, text_color = boxColor, text_size = size.small,
-                 text_halign = text.align_left, text_valign = text.align_top)
-            if not na(lb)
-                label.delete(lb)
-            lb := showLabel ? label.new(x = rightTime, y = h, xloc = xloc.bar_time,
+    // หมายเหตุ: ใช้ if เดี่ยว (ไม่มี else) แยกแต่ละกรณี เพื่อเลี่ยงปัญหา
+    // "Return type of one of the 'if' ... blocks is not compatible" ที่เกิดขึ้นเมื่อ
+    // แต่ละฝั่งของ if/else คืนค่าคนละชนิด (เช่น label กับ void)
+    if showBox and isNewPeriod
+        startTime := t
+        b := box.new(left = t, top = h, bottom = l, right = rightTime, xloc = xloc.bar_time,
+             border_color = boxColor, border_width = 1, bgcolor = color.new(boxColor, 90),
+             text = tfLabel, text_color = boxColor, text_size = size.small,
+             text_halign = text.align_left, text_valign = text.align_top)
+        if not na(lb)
+            label.delete(lb)
+        lb := na
+        if showLabel
+            lb := label.new(x = rightTime, y = h, xloc = xloc.bar_time,
                  text = tfLabel + "\nH: " + str.tostring(h, format.mintick) + "\nL: " + str.tostring(l, format.mintick),
-                 style = label.style_label_left, color = color.new(boxColor, 0), textcolor = color.white, size = size.small) : na
-        else
-            box.set_top(b, h)
-            box.set_bottom(b, l)
-            box.set_right(b, rightTime)
-            if not na(lb)
-                label.set_xy(lb, rightTime, h)
-                label.set_text(lb, tfLabel + "\nH: " + str.tostring(h, format.mintick) + "\nL: " + str.tostring(l, format.mintick))
-    else
+                 style = label.style_label_left, color = color.new(boxColor, 0), textcolor = color.white, size = size.small)
+
+    if showBox and not isNewPeriod
+        box.set_top(b, h)
+        box.set_bottom(b, l)
+        box.set_right(b, rightTime)
+        if not na(lb)
+            label.set_xy(lb, rightTime, h)
+            label.set_text(lb, tfLabel + "\nH: " + str.tostring(h, format.mintick) + "\nL: " + str.tostring(l, format.mintick))
+
+    if not showBox
         if not na(b)
             box.delete(b)
             b := na

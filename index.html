@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAR TTX — Exercise Clock</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@400;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
 <style>
   :root{
     --bg: #060A13;
@@ -36,60 +36,6 @@
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
   }
 
-  :root[data-theme="bright"]{
-    --bg: #EEF2FB;
-    --bg-glow: #D7E6FF;
-    --panel: #FFFFFF;
-    --panel-2: #F3F6FC;
-    --border: #D6DFEF;
-    --divider: #E4E9F5;
-    --text: #16213A;
-    --muted: #64708A;
-    --amber: #F0900B;
-    --amber-dim: #FBD9A0;
-    --amber-rgb: 240,144,11;
-    --on-amber: #2a1a02;
-    --cyan: #0E8FE0;
-    --cyan-rgb: 14,143,224;
-    --on-cyan: #FFFFFF;
-    --green: #189A57;
-    --green-dim: #A7E9C4;
-    --green-rgb: 24,154,87;
-    --on-green: #FFFFFF;
-    --red: #DC3B3B;
-    --red-dim: #F6BBBB;
-    --red-rgb: 220,59,59;
-    --on-red: #FFFFFF;
-    --time-scheme: light;
-  }
-
-  :root[data-theme="military"]{
-    --bg: #10140C;
-    --bg-glow: #263218;
-    --panel: #1A2013;
-    --panel-2: #13170D;
-    --border: #3E4E2C;
-    --divider: #2E3A20;
-    --text: #EAE6D6;
-    --muted: #8C9678;
-    --amber: #C99A3E;
-    --amber-dim: #5C4820;
-    --amber-rgb: 201,154,62;
-    --on-amber: #201502;
-    --cyan: #9BA37E;
-    --cyan-rgb: 155,163,126;
-    --on-cyan: #12160D;
-    --green: #6FBF3F;
-    --green-dim: #2E4416;
-    --green-rgb: 111,191,63;
-    --on-green: #0E1A05;
-    --red: #B3462F;
-    --red-dim: #4A2016;
-    --red-rgb: 179,70,47;
-    --on-red: #FFFFFF;
-    --time-scheme: dark;
-  }
-
   /* ══ THEME: DARK FANTASY (ค่าเริ่มต้น) — ชุดเดียวกับ RTAF RCC Briefing ══
      แก้สีทั้งธีมได้ที่ --df-* ด้านล่าง */
   :root[data-theme="fantasy"]{
@@ -116,6 +62,31 @@
     --sans:'Sarabun', -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
   }
 
+  /* ══ THEME: TACTICAL — futuristic military command HUD ══
+     แก้สีทั้งธีมได้ที่ --tc-* ด้านล่าง */
+  :root[data-theme="tactical"]{
+    --tc-bg:#070D18; --tc-bg-2:#101C2E; --tc-panel:#15263D; --tc-elevated:#1B304A;
+    --tc-cyan:#39D9FF; --tc-blue:#168BFF; --tc-hi:#78E7FF;
+    --tc-text:#EAF5FF; --tc-text-2:#9CB3C9; --tc-muted:#6D8299;
+    --tc-green:#45E6A0; --tc-amber:#FFB547; --tc-red:#FF5263; --tc-divider:#29445F;
+    --tc-cut:12px;
+    --tc-font:'Chakra Petch','Sarabun',sans-serif;
+    --tc-bevel:polygon(var(--tc-cut) 0, calc(100% - var(--tc-cut)) 0, 100% var(--tc-cut), 100% calc(100% - var(--tc-cut)), calc(100% - var(--tc-cut)) 100%, var(--tc-cut) 100%, 0 calc(100% - var(--tc-cut)), 0 var(--tc-cut));
+    --tc-bevel-sm:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    --tc-edge:linear-gradient(180deg, rgba(57,217,255,.65), #29445F 35%, #29445F 70%, rgba(22,139,255,.55));
+
+    --bg:#070D18; --bg-glow:#0F2A4A;
+    --panel:#15263D; --panel-2:#0C1727;
+    --border:#29445F; --divider:#29445F;
+    --text:#EAF5FF; --muted:#9CB3C9;
+    --amber:#FFB547; --amber-dim:#6B4E1E; --amber-rgb:255,181,71; --on-amber:#241603;
+    --cyan:#39D9FF; --cyan-rgb:57,217,255; --on-cyan:#03202B; --cyan-soft:rgba(57,217,255,.35);
+    --green:#45E6A0; --green-dim:#1C5A43; --green-rgb:69,230,160; --on-green:#03231A;
+    --red:#FF5263; --red-dim:#6B2129; --red-rgb:255,82,99; --on-red:#FFFFFF;
+    --time-scheme:dark;
+    --sans:'Sarabun', -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  }
+
   *{ box-sizing:border-box; }
 
   @media (prefers-reduced-motion: reduce){
@@ -138,31 +109,6 @@
     padding:28px 16px 60px;
     position:relative;
   }
-
-  body::before{
-    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
-    opacity:0; transition:opacity .25s ease;
-    background:
-      radial-gradient(ellipse 480px 340px at 12% 16%, rgba(120,140,80,.55), transparent 60%),
-      radial-gradient(ellipse 560px 380px at 84% 6%, rgba(45,38,26,.6), transparent 55%),
-      radial-gradient(ellipse 420px 460px at 60% 66%, rgba(95,115,65,.5), transparent 60%),
-      radial-gradient(ellipse 540px 320px at 6% 82%, rgba(55,46,30,.55), transparent 55%),
-      radial-gradient(ellipse 400px 300px at 94% 90%, rgba(80,100,55,.45), transparent 55%);
-  }
-  :root[data-theme="military"] body::before{ opacity:1; }
-
-  .card{ isolation:isolate; }
-  .card::before{
-    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
-    opacity:0; transition:opacity .25s ease;
-    background:
-      radial-gradient(ellipse 220px 150px at 10% 15%, rgba(120,140,80,.4), transparent 65%),
-      radial-gradient(ellipse 260px 170px at 85% 10%, rgba(50,42,28,.45), transparent 60%),
-      radial-gradient(ellipse 200px 190px at 55% 80%, rgba(95,115,65,.35), transparent 65%),
-      radial-gradient(ellipse 240px 160px at 8% 88%, rgba(45,38,25,.4), transparent 60%),
-      radial-gradient(ellipse 190px 150px at 92% 70%, rgba(85,105,58,.3), transparent 60%);
-  }
-  :root[data-theme="military"] .card::before{ opacity:1; }
 
   .app{
     width:100%; max-width:1180px;
@@ -780,6 +726,134 @@
   @media (max-width:520px){
     :root[data-theme="fantasy"] .card{ background:linear-gradient(180deg, #1B201A 0%, #141813 100%); }
   }
+  /* ── Tactical: components ── */
+  :root[data-theme="tactical"], :root[data-theme="tactical"] body{
+    background:
+      radial-gradient(1100px 520px at 50% -12%, rgba(22,139,255,.22) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, rgba(57,217,255,.035) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(57,217,255,.035) 0 1px, transparent 1px 40px),
+      var(--tc-bg);
+  }
+  :root[data-theme="tactical"] ::selection{ background:rgba(57,217,255,.35); color:#fff; }
+  :root[data-theme="tactical"] :focus-visible{ outline:2px solid var(--tc-cyan) !important; outline-offset:2px; }
+
+  /* แผงแบบมุมตัด + ขอบเรืองฟ้าบาง */
+  :root[data-theme="tactical"] .card,
+  :root[data-theme="tactical"] .modal-box,
+  :root[data-theme="tactical"] .phase-bar{
+    border:1px solid transparent; border-radius:0;
+    clip-path:var(--tc-bevel);
+    background:
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M0.6%2012.6L12.6%200.6'%20stroke='%2339D9FF'%20stroke-width='1.4'%20fill='none'/%3E%3Cpath%20d='M12.6%200.6H16M0.6%2012.6V16'%20stroke='%2378E7FF'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E") left top / 16px 16px no-repeat border-box,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cg%20transform='translate(16%200)%20scale(-1%201)'%3E%3Cpath%20d='M0.6%2012.6L12.6%200.6'%20stroke='%2339D9FF'%20stroke-width='1.4'%20fill='none'/%3E%3Cpath%20d='M12.6%200.6H16M0.6%2012.6V16'%20stroke='%2378E7FF'%20stroke-width='2'%20fill='none'/%3E%3C/g%3E%3C/svg%3E") right top / 16px 16px no-repeat border-box,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cg%20transform='translate(0%2016)%20scale(1%20-1)'%3E%3Cpath%20d='M0.6%2012.6L12.6%200.6'%20stroke='%2339D9FF'%20stroke-width='1.4'%20fill='none'/%3E%3Cpath%20d='M12.6%200.6H16M0.6%2012.6V16'%20stroke='%2378E7FF'%20stroke-width='2'%20fill='none'/%3E%3C/g%3E%3C/svg%3E") left bottom / 16px 16px no-repeat border-box,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cg%20transform='translate(16%2016)%20scale(-1%20-1)'%3E%3Cpath%20d='M0.6%2012.6L12.6%200.6'%20stroke='%2339D9FF'%20stroke-width='1.4'%20fill='none'/%3E%3Cpath%20d='M12.6%200.6H16M0.6%2012.6V16'%20stroke='%2378E7FF'%20stroke-width='2'%20fill='none'/%3E%3C/g%3E%3C/svg%3E") right bottom / 16px 16px no-repeat border-box,
+      linear-gradient(180deg, rgba(27,48,74,.9) 0%, rgba(21,38,61,.96) 30%, #111F33 100%) padding-box,
+      var(--tc-edge) border-box;
+    box-shadow:inset 0 0 0 1px rgba(7,13,24,.6), inset 0 18px 30px -24px rgba(57,217,255,.35);
+  }
+  :root[data-theme="tactical"] .card{ padding-top:26px; }
+  :root[data-theme="tactical"] .card::after,
+  :root[data-theme="tactical"] .modal-box::after{
+    /* แถบเรืองแสงสั้นกลางขอบบน (แบบหัวแผงในภาพอ้างอิง) */
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:min(160px, 30%); height:3px; pointer-events:none;
+    background:linear-gradient(90deg, transparent, var(--tc-cyan), transparent);
+    box-shadow:0 0 10px rgba(57,217,255,.6);
+  }
+  :root[data-theme="tactical"] .modal-overlay{ background:radial-gradient(ellipse at center, rgba(16,28,46,.7), rgba(3,6,12,.9)); }
+  :root[data-theme="tactical"] .modal-box{ max-height:calc(100vh - 40px); overflow:auto; }
+
+  :root[data-theme="tactical"] .eyebrow{
+    color:var(--tc-hi); border-left-color:var(--tc-cyan);
+    background:linear-gradient(90deg, rgba(22,139,255,.35), transparent 90%);
+    font-family:var(--tc-font);
+  }
+  :root[data-theme="tactical"] h1, :root[data-theme="tactical"] .modal-title{
+    font-family:var(--tc-font); font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--tc-text); text-shadow:0 0 14px rgba(57,217,255,.35);
+  }
+  :root[data-theme="tactical"] h1{ font-size:19px; }
+  :root[data-theme="tactical"] header{ padding-bottom:12px; background:linear-gradient(90deg, var(--tc-cyan), var(--tc-divider) 30%, transparent) bottom / 100% 1px no-repeat; }
+  :root[data-theme="tactical"] :is(.clock-label, .section-title, .phase-label){ font-family:var(--tc-font); }
+  :root[data-theme="tactical"] .clock-label{ color:var(--tc-text-2); }
+  :root[data-theme="tactical"] .big-clock{ font-variant-numeric:tabular-nums; }
+  :root[data-theme="tactical"] .big-clock.cyan{ color:var(--tc-hi); text-shadow:0 0 14px rgba(57,217,255,.45); }
+  :root[data-theme="tactical"] .big-clock.amber{ text-shadow:0 0 14px rgba(255,181,71,.35); }
+
+  /* หัวข้อย่อย: ไอคอนหกเหลี่ยม */
+  :root[data-theme="tactical"] .section-title{ color:var(--tc-text-2); }
+  :root[data-theme="tactical"] .section-title::before{
+    width:9px; height:10px; transform:none; background:var(--tc-cyan);
+    clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    box-shadow:none; filter:drop-shadow(0 0 4px rgba(57,217,255,.8));
+  }
+
+  /* แถบขั้น SAR */
+  :root[data-theme="tactical"] .phase-bar{ margin-bottom:16px; }
+  :root[data-theme="tactical"] .phase-label{ color:var(--tc-cyan); }
+  :root[data-theme="tactical"] .phase-btn{
+    border-radius:0; clip-path:var(--tc-bevel-sm);
+    background:linear-gradient(180deg, #1B304A, #101C2E); border:1px solid var(--tc-divider);
+  }
+  :root[data-theme="tactical"] .phase-code{ font-family:var(--tc-font); font-weight:700; letter-spacing:.06em; font-size:clamp(16px, 4.2vw, 44px); }
+  :root[data-theme="tactical"] .phase-btn.active[data-phase="incerfa"]{ background:linear-gradient(180deg, rgba(57,217,255,.28), rgba(22,139,255,.08)); box-shadow:inset 0 0 0 1px var(--tc-cyan), inset 0 0 22px rgba(57,217,255,.25); }
+  :root[data-theme="tactical"] .phase-btn.active[data-phase="alerfa"]{ background:linear-gradient(180deg, rgba(255,181,71,.26), rgba(255,181,71,.06)); box-shadow:inset 0 0 0 1px var(--tc-amber), inset 0 0 22px rgba(255,181,71,.22); }
+  :root[data-theme="tactical"] .phase-btn.active[data-phase="detresfa"]{ background:linear-gradient(180deg, rgba(255,82,99,.28), rgba(255,82,99,.06)); box-shadow:inset 0 0 0 1px var(--tc-red), inset 0 0 22px rgba(255,82,99,.25); }
+
+  /* ช่องกรอก */
+  :root[data-theme="tactical"] .startline input[type="time"],
+  :root[data-theme="tactical"] .custom-row input[type="number"],
+  :root[data-theme="tactical"] .manual-log-row input[type="text"],
+  :root[data-theme="tactical"] .modal-box input[type="text"]{
+    background:linear-gradient(180deg, #08111F, #0C1727); border:1px solid var(--tc-divider); border-radius:0;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.6);
+  }
+  :root[data-theme="tactical"] .startline input[type="time"]{ color:var(--tc-hi); }
+  :root[data-theme="tactical"] :is(input, select):focus{ border-color:var(--tc-cyan); box-shadow:inset 0 2px 6px rgba(0,0,0,.6), 0 0 0 1px var(--tc-cyan), 0 0 10px rgba(57,217,255,.35); }
+  :root[data-theme="tactical"] ::placeholder{ color:var(--tc-muted); }
+
+  /* ปุ่ม: มุมตัด + ไล่สีตามความหมาย */
+  :root[data-theme="tactical"] button{ border-radius:0; font-family:var(--tc-font); letter-spacing:.06em; }
+  :root[data-theme="tactical"] :is(.btn-start, .btn-pause, .btn-reset, .btn-modal-confirm){ clip-path:var(--tc-bevel-sm); text-transform:uppercase; }
+  :root[data-theme="tactical"] .btn-start{ background:linear-gradient(180deg, #6FF2BC 0%, #2BBF82 55%, #138A5C 100%); color:#03231A; box-shadow:inset 0 1px 0 rgba(255,255,255,.45); }
+  :root[data-theme="tactical"] .btn-pause{ background:linear-gradient(180deg, #FFD08A 0%, #FFB547 50%, #C9821C 100%); color:#241603; box-shadow:inset 0 1px 0 rgba(255,255,255,.45); }
+  :root[data-theme="tactical"] .btn-reset, :root[data-theme="tactical"] .btn-modal-confirm.danger{ background:linear-gradient(180deg, #FF8A95 0%, #FF5263 50%, #C22A3B 100%); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.35); }
+  :root[data-theme="tactical"] .btn-modal-confirm{ background:linear-gradient(180deg, #78E7FF 0%, #39D9FF 40%, #168BFF 100%); color:#03202B; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); }
+  :root[data-theme="tactical"] :is(.btn-start, .btn-pause, .btn-reset, .btn-modal-confirm):hover:not(:disabled){ filter:brightness(1.1) drop-shadow(0 0 6px rgba(57,217,255,.35)); }
+
+  :root[data-theme="tactical"] :is(.btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .theme-toggle){
+    background:linear-gradient(180deg, #15263D, #101C2E); border:1px solid #2C5378; color:var(--tc-text);
+    border-radius:0; clip-path:var(--tc-bevel-sm);
+  }
+  :root[data-theme="tactical"] .btn-sync, :root[data-theme="tactical"] .btn-export{ color:var(--tc-hi); }
+  :root[data-theme="tactical"] :is(.btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .theme-toggle):hover:not(:disabled){
+    border-color:var(--tc-cyan); color:#fff; background:linear-gradient(180deg, #1B304A, #13243A);
+    box-shadow:inset 0 0 12px rgba(57,217,255,.25);
+  }
+  :root[data-theme="tactical"] .adjust-grid.neg .btn-adj:hover:not(:disabled){ border-color:var(--tc-red); color:#FFB3BB; box-shadow:inset 0 0 12px rgba(255,82,99,.2); }
+  :root[data-theme="tactical"] :is(.btn-add, .btn-manual-log){ border-radius:0; clip-path:var(--tc-bevel-sm); background:linear-gradient(180deg, rgba(69,230,160,.18), rgba(69,230,160,.05)); border:1px solid var(--tc-green); color:var(--tc-green); }
+  :root[data-theme="tactical"] .btn-sub{ border-radius:0; clip-path:var(--tc-bevel-sm); background:linear-gradient(180deg, rgba(255,82,99,.18), rgba(255,82,99,.05)); border:1px solid var(--tc-red); color:#FF8A95; }
+  :root[data-theme="tactical"] button:disabled{ filter:grayscale(.7); }
+
+  /* ป้ายสถานะ: ทรงเรขาคณิต */
+  :root[data-theme="tactical"] :is(.status-pill, .sync-badge, .log-tag){ border-radius:0; clip-path:var(--tc-bevel-sm); font-family:var(--tc-font); }
+  :root[data-theme="tactical"] .status-pill{ background:#0C1727; border-color:#2C5378; }
+  :root[data-theme="tactical"] :is(.status-dot, .sync-dot, .theme-toggle-dot){
+    border-radius:0; clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  :root[data-theme="tactical"] .theme-toggle-dot{ width:9px; height:10px; background:var(--tc-cyan); box-shadow:none; }
+  :root[data-theme="tactical"] .realtime-row{ border-top-color:var(--tc-divider); }
+  :root[data-theme="tactical"] .log-row{ border-top-color:rgba(41,68,95,.6); }
+  :root[data-theme="tactical"] .app-credit{ color:var(--tc-muted); opacity:.8; }
+
+  :root[data-theme="tactical"] ::-webkit-scrollbar{ width:8px; height:8px; }
+  :root[data-theme="tactical"] ::-webkit-scrollbar-track{ background:#08111F; }
+  :root[data-theme="tactical"] ::-webkit-scrollbar-thumb{ background:linear-gradient(180deg, #168BFF, #29445F); }
+
+  @media (max-width:520px){
+    :root[data-theme="tactical"] .card, :root[data-theme="tactical"] .phase-bar{ --tc-cut:8px; }
+  }
 </style>
 </head>
 <body>
@@ -788,6 +862,7 @@
   (function(){
     try{
       var t = localStorage.getItem('ttxThemeV2') || 'fantasy';
+      if(['fantasy','tactical','default'].indexOf(t) < 0) t = 'fantasy';
       if(t !== 'default') document.documentElement.setAttribute('data-theme', t);
     }catch(e){}
   })();
@@ -1548,8 +1623,9 @@
 
   // ttxThemeV2: ค่าเริ่มต้นเป็น Dark Fantasy (ชุดเดียวกับ RTAF RCC Briefing)
   const THEME_KEY = 'ttxThemeV2';
-  const THEME_ORDER = ['fantasy', 'default', 'bright', 'military'];
-  const THEME_LABELS = { fantasy: 'DARK FANTASY', default: 'DEFAULT', bright: 'BRIGHT', military: 'MILITARY' };
+  // ธีม bright / military ถูกถอดออก — ค่าที่บันทึกไว้เดิมจะกลับไปเป็น Dark Fantasy
+  const THEME_ORDER = ['fantasy', 'tactical', 'default'];
+  const THEME_LABELS = { fantasy: 'DARK FANTASY', tactical: 'TACTICAL', default: 'DEFAULT' };
 
   function applyTheme(theme){
     if(!THEME_ORDER.includes(theme)) theme = 'fantasy';

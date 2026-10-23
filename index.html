@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAR TTX — Exercise Clock</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@400;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@400;600;700&family=Chakra+Petch:wght@500;600;700&family=Press+Start+2P&family=VT323&display=swap">
 <style>
   :root{
     --bg: #060A13;
@@ -85,6 +85,35 @@
     --red:#FF5263; --red-dim:#6B2129; --red-rgb:255,82,99; --on-red:#FFFFFF;
     --time-scheme:dark;
     --sans:'Sarabun', -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  }
+
+  /* ══ THEME: GAME BOY — Nintendo DMG-01 monochrome LCD (4 เฉด) ══
+     ทั้งธีมใช้แค่ 4 สีนี้: --gb-1 (สว่างสุด) … --gb-4 (มืดสุด) */
+  :root[data-theme="gameboy"]{
+    --gb-1:#E0F8D0; --gb-2:#88C070; --gb-3:#346856; --gb-4:#081820;
+    --gb-1-rgb:224,248,208; --gb-3-rgb:52,104,86; --gb-4-rgb:8,24,32;
+    --gb-px:4px;
+    --gb-pixel:'Press Start 2P','Chakra Petch','Sarabun',monospace;
+    --gb-lcd:'VT323','Chakra Petch',monospace;
+    /* กรอบพิกเซลมุมบาก + เงาขั้นบันได */
+    --gb-frame:0 calc(-1*var(--gb-px)) 0 0 var(--gb-4), 0 var(--gb-px) 0 0 var(--gb-4), calc(-1*var(--gb-px)) 0 0 0 var(--gb-4), var(--gb-px) 0 0 0 var(--gb-4);
+    --gb-drop:calc(2*var(--gb-px)) calc(2*var(--gb-px)) 0 0 var(--gb-3), var(--gb-px) calc(3*var(--gb-px)) 0 0 var(--gb-3), calc(3*var(--gb-px)) var(--gb-px) 0 0 var(--gb-3);
+    --gb-frame-sm:0 -2px 0 0 var(--gb-4), 0 2px 0 0 var(--gb-4), -2px 0 0 0 var(--gb-4), 2px 0 0 0 var(--gb-4);
+    --gb-drop-sm:3px 3px 0 0 var(--gb-3), 2px 4px 0 0 var(--gb-3), 4px 2px 0 0 var(--gb-3);
+    --gb-stripes:repeating-linear-gradient(45deg, var(--gb-2) 0 4px, transparent 4px 8px);
+    --gb-dots:radial-gradient(var(--gb-3) 1.4px, transparent 1.6px) 0 0 / 6px 6px;
+
+    --bg:#88C070; --bg-glow:#88C070;
+    --panel:#E0F8D0; --panel-2:#E0F8D0;
+    --border:#081820; --divider:#88C070;
+    --text:#081820; --muted:#346856;
+    --amber:#346856; --amber-dim:#346856; --amber-rgb:52,104,86; --on-amber:#E0F8D0;
+    --cyan:#081820; --cyan-rgb:8,24,32; --on-cyan:#E0F8D0; --cyan-soft:rgba(8,24,32,.35);
+    --green:#081820; --green-dim:#346856; --green-rgb:8,24,32; --on-green:#E0F8D0;
+    --red:#081820; --red-dim:#346856; --red-rgb:8,24,32; --on-red:#E0F8D0;
+    --time-scheme:light;
+    --sans:'Sarabun', "Noto Sans Thai", sans-serif;
+    --mono:'VT323', monospace;
   }
 
   *{ box-sizing:border-box; }
@@ -854,6 +883,135 @@
   @media (max-width:520px){
     :root[data-theme="tactical"] .card, :root[data-theme="tactical"] .phase-bar{ --tc-cut:8px; }
   }
+  /* ── Game Boy: components ── */
+  :root[data-theme="gameboy"], :root[data-theme="gameboy"] body{
+    /* พื้นจอ LCD + ตารางพิกเซลจาง ๆ */
+    background:
+      repeating-linear-gradient(0deg, rgba(var(--gb-3-rgb),.10) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(var(--gb-3-rgb),.10) 0 1px, transparent 1px 4px),
+      var(--gb-2);
+    -webkit-font-smoothing:none;
+  }
+  :root[data-theme="gameboy"] *{ border-radius:0 !important; text-shadow:none !important; }
+  :root[data-theme="gameboy"] ::selection{ background:var(--gb-4); color:var(--gb-1); }
+  :root[data-theme="gameboy"] :focus-visible{ outline:2px dashed var(--gb-4) !important; outline-offset:4px; }
+
+  /* แผง = หน้าจอ LCD กรอบพิกเซลมุมบาก */
+  :root[data-theme="gameboy"] .card,
+  :root[data-theme="gameboy"] .phase-bar{
+    background:var(--gb-1); border:0;
+    box-shadow:var(--gb-frame), var(--gb-drop);
+    margin:4px;
+  }
+  :root[data-theme="gameboy"] .layout{ gap:20px; }
+  :root[data-theme="gameboy"] .card::after{ display:none; }
+
+  :root[data-theme="gameboy"] .eyebrow{
+    font-family:var(--gb-pixel); font-size:8px; letter-spacing:.08em; line-height:1.6;
+    background:var(--gb-4); color:var(--gb-1); border-left:0; clip-path:none; padding:4px 8px;
+  }
+  :root[data-theme="gameboy"] .modal-title{ font-family:var(--gb-lcd); font-size:24px; font-weight:400; color:var(--gb-4); }
+  :root[data-theme="gameboy"] h1{ font-family:var(--gb-pixel); font-size:13px; line-height:1.6; letter-spacing:.02em; font-weight:400; color:var(--gb-4); }
+  :root[data-theme="gameboy"] header{ padding-bottom:12px;
+    background:repeating-linear-gradient(90deg, var(--gb-4) 0 4px, transparent 4px 8px) bottom / 100% 2px no-repeat; }
+  :root[data-theme="gameboy"] :is(.clock-label, .phase-label, .phase-name){ font-family:var(--gb-pixel); font-size:8px; line-height:1.7; letter-spacing:.06em; color:var(--gb-3); }
+  :root[data-theme="gameboy"] .section-title{ font-family:var(--gb-lcd); font-size:19px; letter-spacing:.04em; color:var(--gb-3); }
+  :root[data-theme="gameboy"] .section-title::before{ width:8px; height:8px; transform:none; background:var(--gb-4); box-shadow:none; }
+
+  /* นาฬิกา: ตัวเลข LCD; เวลาฝึกเป็นแถบกลับสี */
+  :root[data-theme="gameboy"] .big-clock{ font-family:var(--gb-lcd); font-size:clamp(38px, 8vw, 60px); font-weight:400; letter-spacing:.04em; line-height:1; }
+  :root[data-theme="gameboy"] .big-clock.cyan{ color:var(--gb-4); }
+  :root[data-theme="gameboy"] .big-clock.amber{ display:inline-block; color:var(--gb-1); background:var(--gb-4); padding:2px 10px 4px; box-shadow:var(--gb-drop-sm); }
+  :root[data-theme="gameboy"] .clock-col::after{ animation:none; opacity:1; height:2px; background:repeating-linear-gradient(90deg, var(--gb-3) 0 4px, transparent 4px 8px); }
+  :root[data-theme="gameboy"] .day-row{ font-family:var(--gb-lcd); font-size:17px; color:var(--gb-3); }
+  :root[data-theme="gameboy"] .day-row b{ color:var(--gb-4); }
+
+  /* แถบขั้น SAR: เมนูเกม + เคอร์เซอร์ ▶ ; แยกขั้นด้วยลวดลาย ไม่ใช้สี */
+  :root[data-theme="gameboy"] .phase-btn{ background:var(--gb-1); border:0; box-shadow:var(--gb-frame-sm); color:var(--gb-3); position:relative; }
+  :root[data-theme="gameboy"] .phase-btn:hover{ color:var(--gb-4); background:var(--gb-1); }
+  :root[data-theme="gameboy"] .phase-code{ font-family:var(--gb-pixel); font-weight:400; font-size:clamp(11px, 2.4vw, 24px); line-height:1.5; letter-spacing:0; }
+  :root[data-theme="gameboy"] .phase-btn.active[data-phase]{ background:var(--gb-4); color:var(--gb-1); box-shadow:var(--gb-frame-sm), var(--gb-drop-sm); border:0; }
+  :root[data-theme="gameboy"] .phase-btn.active .phase-name{ color:var(--gb-1); }
+  :root[data-theme="gameboy"] .phase-btn.active::before{
+    content:''; position:absolute; left:6px; top:50%; width:8px; height:12px; transform:translateY(-50%);
+    background:var(--gb-1); clip-path:polygon(0 0, 100% 50%, 0 100%);
+  }
+  :root[data-theme="gameboy"] .phase-btn.active[data-phase="alerfa"]{ background:var(--gb-dots), var(--gb-4); }
+  :root[data-theme="gameboy"] .phase-btn.active[data-phase="detresfa"]{ background:repeating-linear-gradient(45deg, var(--gb-3) 0 4px, transparent 4px 8px), var(--gb-4); }
+
+  /* ช่องกรอก */
+  :root[data-theme="gameboy"] .startline input[type="time"],
+  :root[data-theme="gameboy"] .custom-row input[type="number"],
+  :root[data-theme="gameboy"] .manual-log-row input[type="text"],
+  :root[data-theme="gameboy"] .modal-box input[type="text"]{
+    background:var(--gb-1); color:var(--gb-4); border:0;
+    box-shadow:inset 0 0 0 2px var(--gb-4), inset 3px 3px 0 0 var(--gb-2);
+  }
+  :root[data-theme="gameboy"] .startline input[type="time"]{ font-family:var(--gb-lcd); font-size:clamp(34px, 7vw, 54px); font-weight:400; }
+  :root[data-theme="gameboy"] .custom-row input[type="number"]{ font-family:var(--gb-lcd); font-size:20px; }
+  :root[data-theme="gameboy"] ::placeholder{ color:var(--gb-3); opacity:1; }
+
+  /* ปุ่ม: สี่เหลี่ยมพิกเซล + เงาขั้นบันได; กดแล้วจมลง */
+  :root[data-theme="gameboy"] button{ font-family:var(--gb-lcd); font-size:19px; font-weight:400; line-height:1.1; letter-spacing:.03em; border:0; }
+  :root[data-theme="gameboy"] :is(.btn-start, .btn-pause, .btn-reset, .btn-export, .clear-log, .theme-toggle){ font-family:var(--gb-pixel); font-size:10px; line-height:1.6; }
+  :root[data-theme="gameboy"] :is(.btn-start, .btn-pause, .btn-reset, .btn-modal-confirm, .btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .theme-toggle, .btn-add, .btn-sub, .btn-manual-log){
+    box-shadow:var(--gb-frame-sm), var(--gb-drop-sm); margin:2px;
+  }
+  :root[data-theme="gameboy"] .btn-start, :root[data-theme="gameboy"] .btn-modal-confirm{ background:var(--gb-4); color:var(--gb-1); }
+  :root[data-theme="gameboy"] .btn-pause{ background:var(--gb-3); color:var(--gb-1); }
+  :root[data-theme="gameboy"] .btn-reset, :root[data-theme="gameboy"] .btn-modal-confirm.danger{ background:var(--gb-stripes), var(--gb-1); color:var(--gb-4); }
+  :root[data-theme="gameboy"] :is(.btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .theme-toggle, .btn-add, .btn-manual-log){ background:var(--gb-1); color:var(--gb-4); }
+  :root[data-theme="gameboy"] .btn-sub{ background:var(--gb-2); color:var(--gb-4); }
+  :root[data-theme="gameboy"] .btn-adj{ font-family:var(--gb-lcd); font-size:20px; padding:4px; }
+  :root[data-theme="gameboy"] button:hover:not(:disabled){ filter:none; background:var(--gb-4); color:var(--gb-1); }
+  :root[data-theme="gameboy"] .adjust-grid.neg .btn-adj:hover:not(:disabled){ background:var(--gb-4); color:var(--gb-1); }
+  :root[data-theme="gameboy"] button:active:not(:disabled){ transform:translate(2px, 2px); box-shadow:var(--gb-frame-sm); }
+  :root[data-theme="gameboy"] button:disabled{ opacity:1; background:var(--gb-2); color:var(--gb-3); box-shadow:0 0 0 2px var(--gb-3); }
+
+  /* ป้ายสถานะ */
+  :root[data-theme="gameboy"] :is(.status-pill, .sync-badge, .log-tag){ font-family:var(--gb-pixel); font-size:8px; background:var(--gb-1); color:var(--gb-4); border:0; box-shadow:var(--gb-frame-sm); }
+  :root[data-theme="gameboy"] .status-pill.running, :root[data-theme="gameboy"] .sync-badge.ok{ background:var(--gb-4); color:var(--gb-1); }
+  :root[data-theme="gameboy"] .status-pill.running .status-dot{ background:var(--gb-1); animation:gbBlink 1s step-end infinite; }
+  :root[data-theme="gameboy"] :is(.status-dot, .sync-dot, .theme-toggle-dot){ border-radius:0; width:6px; height:6px; box-shadow:none; }
+  :root[data-theme="gameboy"] .sync-badge.bad{ background:var(--gb-2); }
+  :root[data-theme="gameboy"] .theme-toggle-dot{ background:var(--gb-4); }
+  @keyframes gbBlink{ 50%{ opacity:0; } }
+
+  /* ล็อก: ตัวอักษร LCD; ประเภทแยกด้วยเฉดเข้ม/กลาง */
+  :root[data-theme="gameboy"] .log-row{ font-family:var(--gb-lcd); font-size:18px; line-height:1.15; border-top:2px dotted var(--gb-2); }
+  :root[data-theme="gameboy"] .log-row .log-text{ color:var(--gb-4) !important; }
+  :root[data-theme="gameboy"] .log-time{ color:var(--gb-3); }
+  :root[data-theme="gameboy"] :is(.log-row.type-reset, .log-row.type-jump-neg, .log-row.type-phase-detresfa, .log-row.type-blast, .log-row.type-sync-fail) .log-text{ background:var(--gb-2); padding:0 4px; }
+  :root[data-theme="gameboy"] .log-del{ color:var(--gb-3); box-shadow:none; margin:0; font-family:var(--gb-pixel); font-size:9px; }
+  :root[data-theme="gameboy"] .log-del:hover{ background:var(--gb-4) !important; color:var(--gb-1) !important; }
+  :root[data-theme="gameboy"] .log-empty{ font-family:var(--gb-lcd); font-size:18px; color:var(--gb-3); }
+  :root[data-theme="gameboy"] .realtime-row{ border-top:2px dotted var(--gb-3); }
+
+  /* กล่องข้อความแบบเกม RPG (ขอบคู่) */
+  :root[data-theme="gameboy"] .modal-overlay{ background:rgba(var(--gb-4-rgb),.55); }
+  :root[data-theme="gameboy"] .modal-box{
+    background:var(--gb-1); border:0;
+    box-shadow:0 0 0 2px var(--gb-1), 0 0 0 6px var(--gb-4), 0 0 0 8px var(--gb-1), 0 0 0 10px var(--gb-4), 10px 10px 0 6px var(--gb-3);
+    max-height:calc(100vh - 60px); overflow:auto;
+  }
+  :root[data-theme="gameboy"] .modal-message, :root[data-theme="gameboy"] .modal-hint{ color:var(--gb-4); font-size:14px; }
+  :root[data-theme="gameboy"] .modal-error{ color:var(--gb-4); background:var(--gb-stripes); padding:2px 4px; }
+
+  :root[data-theme="gameboy"] .app-credit{ font-family:var(--gb-pixel); font-size:7px; color:var(--gb-4); opacity:.75; }
+  :root[data-theme="gameboy"] ::-webkit-scrollbar{ width:8px; height:8px; }
+  :root[data-theme="gameboy"] ::-webkit-scrollbar-track{ background:var(--gb-2); }
+  :root[data-theme="gameboy"] ::-webkit-scrollbar-thumb{ background:var(--gb-4); }
+
+  @media (max-width:520px){
+    :root[data-theme="gameboy"]{ --gb-px:3px; }
+    :root[data-theme="gameboy"] :is(.btn-start, .btn-pause, .btn-reset, .btn-export, .clear-log, .theme-toggle){ font-size:9px; }
+    :root[data-theme="gameboy"] .phase-btn.active::before{ display:none; }
+    :root[data-theme="gameboy"] .layout{ grid-template-columns:minmax(0, 1fr); }
+    :root[data-theme="gameboy"] .startline input[type="time"]{ font-size:30px; }
+    :root[data-theme="gameboy"] .adjust-grid{ gap:6px; }
+    :root[data-theme="gameboy"] :is(.btn-adj, .btn-add, .btn-sub, .btn-sync){ margin:1px; }
+    :root[data-theme="gameboy"] .btn-adj{ font-size:17px; }
+  }
 </style>
 </head>
 <body>
@@ -862,7 +1020,7 @@
   (function(){
     try{
       var t = localStorage.getItem('ttxThemeV2') || 'fantasy';
-      if(['fantasy','tactical','default'].indexOf(t) < 0) t = 'fantasy';
+      if(['fantasy','tactical','gameboy','default'].indexOf(t) < 0) t = 'fantasy';
       if(t !== 'default') document.documentElement.setAttribute('data-theme', t);
     }catch(e){}
   })();
@@ -1624,8 +1782,8 @@
   // ttxThemeV2: ค่าเริ่มต้นเป็น Dark Fantasy (ชุดเดียวกับ RTAF RCC Briefing)
   const THEME_KEY = 'ttxThemeV2';
   // ธีม bright / military ถูกถอดออก — ค่าที่บันทึกไว้เดิมจะกลับไปเป็น Dark Fantasy
-  const THEME_ORDER = ['fantasy', 'tactical', 'default'];
-  const THEME_LABELS = { fantasy: 'DARK FANTASY', tactical: 'TACTICAL', default: 'DEFAULT' };
+  const THEME_ORDER = ['fantasy', 'tactical', 'gameboy', 'default'];
+  const THEME_LABELS = { fantasy: 'DARK FANTASY', tactical: 'TACTICAL', gameboy: 'GAME BOY', default: 'DEFAULT' };
 
   function applyTheme(theme){
     if(!THEME_ORDER.includes(theme)) theme = 'fantasy';

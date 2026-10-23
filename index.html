@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAR TTX — Exercise Clock</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap">
 <style>
   :root{
     --bg: #060A13;
@@ -88,6 +89,32 @@
     --red-rgb: 179,70,47;
     --on-red: #FFFFFF;
     --time-scheme: dark;
+  }
+
+  /* ══ THEME: DARK FANTASY (ค่าเริ่มต้น) — ชุดเดียวกับ RTAF RCC Briefing ══
+     แก้สีทั้งธีมได้ที่ --df-* ด้านล่าง */
+  :root[data-theme="fantasy"]{
+    --df-obsidian:#101310; --df-iron:#20251F; --df-iron-hi:#2E352C; --df-forest:#183923;
+    --df-emerald:#45D66A; --df-emerald-dk:#1F7A39; --df-gem-hi:#B8FFB5;
+    --df-bronze:#79552F; --df-gold:#C7A45A; --df-stone:#777966; --df-ivory:#E7E4D1;
+    --df-muted-text:#A3A48E; --df-incerfa:#E8C35A;
+    --df-font-display:'Cinzel','Noto Serif Thai','Sarabun',serif;
+    --df-rim:0 0 0 1px #070907, 0 0 0 3px var(--df-iron-hi), 0 0 0 4px rgba(121,85,47,.75);
+    --df-bevel:inset 0 1px 0 rgba(255,255,255,.07), inset 0 -1px 0 rgba(0,0,0,.6);
+    --df-recess:inset 0 2px 5px rgba(0,0,0,.75), inset 0 0 0 1px rgba(0,0,0,.5);
+    --df-glow:0 0 10px rgba(69,214,106,.35);
+
+    --bg:#101310; --bg-glow:#183923;
+    --panel:#191E18; --panel-2:#0E120D;
+    --border:#454B3C; --divider:rgba(121,85,47,.35);
+    --text:#E7E4D1; --muted:#A3A48E;
+    --amber:#E2A23B; --amber-dim:#6B4A1C; --amber-rgb:226,162,59; --on-amber:#1E1405;
+    --cyan:#45D66A; --cyan-rgb:69,214,106; --on-cyan:#08190D;
+    --cyan-soft:rgba(69,214,106,.35);
+    --green:#45D66A; --green-dim:#1F5A30; --green-rgb:69,214,106; --on-green:#08190D;
+    --red:#E5533D; --red-dim:#6B2A20; --red-rgb:229,83,61; --on-red:#FFFFFF;
+    --time-scheme:dark;
+    --sans:'Sarabun', -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
   }
 
   *{ box-sizing:border-box; }
@@ -663,6 +690,183 @@
   }
 
   .log-row.type-blast .log-text{ color:var(--red); }
+  /* ── Dark Fantasy: components ── */
+  :root[data-theme="fantasy"], :root[data-theme="fantasy"] body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(24,57,35,.6) 0%, transparent 60%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 9px),
+      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%),
+      var(--bg);
+  }
+  :root[data-theme="fantasy"] ::selection{ background:rgba(69,214,106,.35); color:#fff; }
+  :root[data-theme="fantasy"] :focus-visible{ outline:2px solid var(--df-emerald) !important; outline-offset:2px; }
+
+  /* กรอบโลหะซ้อนชั้น + มุมประดับอัญมณี */
+  :root[data-theme="fantasy"] .card,
+  :root[data-theme="fantasy"] .modal-box{
+    background:
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/svg%3E") top left / 34px 34px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%200)%20scale(-1%201)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") top right / 34px 34px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(0%2034)%20scale(1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom left / 34px 34px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%2034)%20scale(-1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom right / 34px 34px no-repeat,
+      linear-gradient(180deg, rgba(46,53,44,.35), transparent 44px),
+      linear-gradient(180deg, #1B201A 0%, #141813 100%);
+    border:1px solid #3A4033;
+    border-radius:3px;
+    box-shadow:var(--df-rim), var(--df-bevel), inset 0 0 40px rgba(0,0,0,.45), 0 14px 34px rgba(0,0,0,.65);
+  }
+  :root[data-theme="fantasy"] .modal-box{ background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/svg%3E") top left / 26px 26px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%200)%20scale(-1%201)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") top right / 26px 26px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(0%2034)%20scale(1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom left / 26px 26px no-repeat,
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%2034)%20scale(-1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom right / 26px 26px no-repeat, linear-gradient(180deg, #1D221C, #121511); }
+  :root[data-theme="fantasy"] .modal-overlay{ background:radial-gradient(ellipse at center, rgba(24,57,35,.45), rgba(5,7,5,.88)); }
+  :root[data-theme="fantasy"] .layout{ gap:22px; }
+
+  :root[data-theme="fantasy"] .eyebrow{
+    color:var(--df-gold); border-left-color:var(--df-bronze);
+    background:linear-gradient(90deg, rgba(121,85,47,.35), transparent 90%);
+  }
+  :root[data-theme="fantasy"] h1{
+    font-family:var(--df-font-display); font-weight:700; letter-spacing:.06em; font-size:19px;
+    color:var(--df-gold); text-shadow:0 1px 0 #000;
+  }
+  :root[data-theme="fantasy"] header{
+    padding-bottom:12px;
+    background:linear-gradient(90deg, transparent, var(--df-bronze) 12%, var(--df-gold) 50%, var(--df-bronze) 88%, transparent) bottom / 100% 1px no-repeat;
+  }
+
+  /* แถบขั้น SAR: แผ่นโลหะ + อัญมณีกลางขอบบน (เหมือนภาพอ้างอิง) */
+  :root[data-theme="fantasy"] .phase-bar{
+    position:relative;
+    background:linear-gradient(180deg, #262C24 0%, #1A1F19 55%, #121511 100%);
+    border:1px solid #3A4033; border-radius:3px;
+    box-shadow:var(--df-rim), var(--df-bevel), 0 10px 24px rgba(0,0,0,.6);
+    margin-top:14px; margin-bottom:22px;
+  }
+  :root[data-theme="fantasy"] .phase-bar::after{
+    content:''; position:absolute; left:50%; top:-13px; transform:translateX(-50%);
+    width:22px; height:22px; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 12%, var(--df-emerald) 38%, var(--df-emerald-dk) 75%, #0b2a14 100%);
+    box-shadow:0 0 0 2px #070907, 0 0 0 4px var(--df-bronze), 0 0 14px rgba(69,214,106,.6);
+  }
+  :root[data-theme="fantasy"] .phase-label{ color:var(--df-gold); }
+  :root[data-theme="fantasy"] .phase-btn{
+    background:linear-gradient(180deg, #2A3028, #181C17); border:1px solid #454B3C; border-radius:3px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px #070907;
+  }
+  :root[data-theme="fantasy"] .phase-code{ font-family:var(--df-font-display); font-weight:700; letter-spacing:.04em; font-size:clamp(17px, 4.4vw, 44px); }
+  /* สีขั้น SAR ตรงกับ RCC Briefing: INCERFA เหลืองทอง / ALERFA อำพัน / DETRESFA แดง */
+  :root[data-theme="fantasy"] .phase-btn.active[data-phase="incerfa"]{
+    border-color:var(--df-incerfa); color:var(--df-incerfa); background:linear-gradient(180deg, rgba(232,195,90,.22), rgba(232,195,90,.06));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px var(--df-bronze), 0 0 16px -2px rgba(232,195,90,.55);
+  }
+  :root[data-theme="fantasy"] .phase-btn.active[data-phase="alerfa"]{
+    background:linear-gradient(180deg, rgba(226,162,59,.24), rgba(226,162,59,.06));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px var(--df-bronze), 0 0 16px -2px rgba(226,162,59,.55);
+  }
+  :root[data-theme="fantasy"] .phase-btn.active[data-phase="detresfa"]{
+    background:linear-gradient(180deg, rgba(229,83,61,.26), rgba(229,83,61,.06));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px var(--df-bronze), 0 0 18px -2px rgba(229,83,61,.6);
+  }
+  :root[data-theme="fantasy"] .log-row.type-phase-incerfa .log-text{ color:var(--df-incerfa); }
+
+  /* นาฬิกา */
+  :root[data-theme="fantasy"] .clock-label{ color:var(--df-gold); }
+  :root[data-theme="fantasy"] .big-clock.cyan{ color:var(--df-gem-hi); text-shadow:0 0 16px rgba(69,214,106,.5); }
+  :root[data-theme="fantasy"] .big-clock.amber{ text-shadow:0 0 16px rgba(226,162,59,.45); }
+  :root[data-theme="fantasy"] .day-row b{ color:var(--df-ivory); }
+
+  /* ช่องกรอก: ผิวเว้า + ขอบโลหะ */
+  :root[data-theme="fantasy"] .startline input[type="time"],
+  :root[data-theme="fantasy"] .custom-row input[type="number"],
+  :root[data-theme="fantasy"] .manual-log-row input[type="text"],
+  :root[data-theme="fantasy"] .modal-box input[type="text"],
+  :root[data-theme="fantasy"] .blast-field select,
+  :root[data-theme="fantasy"] .blast-field input[type="number"]{
+    background:linear-gradient(180deg, #0B0E0B, #121611); border:1px solid #454B3C; border-radius:3px;
+    box-shadow:var(--df-recess);
+  }
+  :root[data-theme="fantasy"] .startline input[type="time"]{ color:var(--df-gem-hi); text-shadow:0 0 10px rgba(69,214,106,.35); }
+  :root[data-theme="fantasy"] :is(input, select):focus{ border-color:var(--df-emerald); box-shadow:var(--df-recess), 0 0 0 1px var(--df-emerald), var(--df-glow); }
+  :root[data-theme="fantasy"] ::placeholder{ color:#7F816D; }
+  :root[data-theme="fantasy"] select option{ background:var(--df-iron); color:var(--df-ivory); }
+
+  /* ปุ่ม: primary = มรกตเรืองแสง / secondary = เหล็กดำ / danger = แดงหม่น */
+  :root[data-theme="fantasy"] button{ border-radius:3px; }
+  :root[data-theme="fantasy"] .btn-start,
+  :root[data-theme="fantasy"] .btn-modal-confirm{
+    background:linear-gradient(180deg, #6BEA8C 0%, #36B75A 45%, #1F7A39 100%); color:#08190D;
+    border:1px solid #0B2A14; text-shadow:0 1px 0 rgba(255,255,255,.35);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.25), 0 0 0 1px var(--df-bronze), var(--df-glow);
+  }
+  :root[data-theme="fantasy"] .btn-pause{
+    background:linear-gradient(180deg, #F0C068 0%, #C98A2B 50%, #7A5216 100%); color:#1E1405; border:1px solid #2A1A06;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.25), 0 0 0 1px var(--df-bronze);
+  }
+  :root[data-theme="fantasy"] .btn-reset,
+  :root[data-theme="fantasy"] .btn-modal-confirm.danger{
+    background:linear-gradient(180deg, #F07A62 0%, #C8402B 50%, #7A2316 100%); color:#fff; border:1px solid #2A0A06;
+    text-shadow:0 1px 0 rgba(0,0,0,.4);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.25), 0 0 0 1px var(--df-bronze);
+  }
+  :root[data-theme="fantasy"] :is(.btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .view-tab, .theme-toggle, .status-pill, .sync-badge, .log-tag, .blast-actions button){
+    background:linear-gradient(180deg, #2E352C 0%, #1B201A 100%);
+    border:1px solid #4A503F;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -1px 0 rgba(0,0,0,.5), 0 0 0 1px #070907;
+  }
+  :root[data-theme="fantasy"] :is(.btn-adj, .btn-export, .clear-log, .btn-modal-cancel, .blast-actions button){ color:var(--df-ivory); }
+  :root[data-theme="fantasy"] :is(.btn-adj, .btn-sync, .btn-export, .clear-log, .btn-modal-cancel, .view-tab, .theme-toggle, .blast-actions button):hover:not(:disabled){
+    border-color:var(--df-gold); color:#fff; filter:brightness(1.12); background:linear-gradient(180deg, #2E352C 0%, #1B201A 100%);
+  }
+  :root[data-theme="fantasy"] .adjust-grid.neg .btn-adj:hover:not(:disabled){ border-color:var(--red); color:#FFB4A6; }
+  :root[data-theme="fantasy"] :is(.btn-add, .btn-manual-log){
+    background:linear-gradient(180deg, #24502F, #183923); border:1px solid var(--df-emerald); color:var(--df-gem-hi);
+    box-shadow:inset 0 1px 0 rgba(184,255,181,.2), 0 0 0 1px #070907;
+  }
+  :root[data-theme="fantasy"] :is(.btn-add, .btn-manual-log):hover:not(:disabled){ filter:brightness(1.15); background:linear-gradient(180deg, #24502F, #183923); }
+  :root[data-theme="fantasy"] .btn-sub{
+    background:linear-gradient(180deg, #3A1A15, #241009); border:1px solid rgba(229,83,61,.6); color:#FFB4A6;
+    box-shadow:0 0 0 1px #070907;
+  }
+  :root[data-theme="fantasy"] .btn-sub:hover:not(:disabled){ border-color:var(--red); color:#fff; background:linear-gradient(180deg, #3A1A15, #241009); }
+  :root[data-theme="fantasy"] button:disabled{ filter:grayscale(.6); }
+
+  /* แท็บมุมมอง */
+  :root[data-theme="fantasy"] .view-tab{ color:var(--df-muted-text); }
+  :root[data-theme="fantasy"] .view-tab.active{
+    background:linear-gradient(180deg, #24502F 0%, #183923 100%); border-color:var(--df-emerald); color:var(--df-gem-hi);
+    box-shadow:inset 0 1px 0 rgba(184,255,181,.25), 0 0 0 1px #070907, var(--df-glow);
+  }
+
+  /* ปุ่มเปลี่ยนธีม: จุดเป็นอัญมณีมรกต */
+  :root[data-theme="fantasy"] .theme-toggle-dot{
+    width:11px; height:11px;
+    background:radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 15%, var(--df-emerald) 45%, var(--df-emerald-dk) 100%);
+    box-shadow:0 0 0 1px #070907, 0 0 0 2px var(--df-bronze), 0 0 8px rgba(69,214,106,.6);
+  }
+
+  :root[data-theme="fantasy"] .section-title{ color:var(--df-gold); }
+  :root[data-theme="fantasy"] .section-title::before{ background:var(--df-emerald); box-shadow:0 0 0 1px #070907, 0 0 6px rgba(69,214,106,.7); }
+  :root[data-theme="fantasy"] .realtime-row{ border-top:1px solid transparent;
+    background:linear-gradient(90deg, transparent, var(--df-bronze), transparent) top / 100% 1px no-repeat; }
+  :root[data-theme="fantasy"] .modal-title{ font-family:var(--df-font-display); color:var(--df-gold); letter-spacing:.04em; }
+  :root[data-theme="fantasy"] .app-credit{ color:var(--df-gold); opacity:.55; }
+
+  /* แผนที่จำลองระเบิด */
+  :root[data-theme="fantasy"] .blast-map{ border:1px solid #3A4033; border-radius:3px; box-shadow:var(--df-recess), 0 0 0 1px #070907; }
+  :root[data-theme="fantasy"] .blast-field label{ color:var(--df-gold); }
+  :root[data-theme="fantasy"] .leaflet-tile{ filter:brightness(.6) saturate(.5) sepia(.3) hue-rotate(50deg); }
+  :root[data-theme="fantasy"] .leaflet-popup-content-wrapper,
+  :root[data-theme="fantasy"] .leaflet-popup-tip{ background:#1B201A; color:var(--df-ivory); box-shadow:0 0 0 1px var(--df-bronze), 0 10px 24px rgba(0,0,0,.7); }
+
+  /* scrollbar */
+  :root[data-theme="fantasy"] ::-webkit-scrollbar{ width:10px; height:10px; }
+  :root[data-theme="fantasy"] ::-webkit-scrollbar-track{ background:#0B0E0B; }
+  :root[data-theme="fantasy"] ::-webkit-scrollbar-thumb{ background:linear-gradient(90deg, #3A4033, #5B4630, #3A4033); border:2px solid #0B0E0B; border-radius:5px; }
+
+  @media (max-width:520px){
+    :root[data-theme="fantasy"] .card{ background:linear-gradient(180deg, #1B201A 0%, #141813 100%); }
+  }
 </style>
 </head>
 <body>
@@ -670,8 +874,8 @@
 <script>
   (function(){
     try{
-      var t = localStorage.getItem('ttxTheme');
-      if(t && t !== 'default') document.documentElement.setAttribute('data-theme', t);
+      var t = localStorage.getItem('ttxThemeV2') || 'fantasy';
+      if(t !== 'default') document.documentElement.setAttribute('data-theme', t);
     }catch(e){}
   })();
 </script>
@@ -1705,12 +1909,13 @@
     if(e.key==='Enter'){ e.preventDefault(); addManualLogEntry(); }
   });
 
-  const THEME_KEY = 'ttxTheme';
-  const THEME_ORDER = ['default', 'bright', 'military'];
-  const THEME_LABELS = { default: 'DEFAULT', bright: 'BRIGHT', military: 'MILITARY' };
+  // ttxThemeV2: ค่าเริ่มต้นเป็น Dark Fantasy (ชุดเดียวกับ RTAF RCC Briefing)
+  const THEME_KEY = 'ttxThemeV2';
+  const THEME_ORDER = ['fantasy', 'default', 'bright', 'military'];
+  const THEME_LABELS = { fantasy: 'DARK FANTASY', default: 'DEFAULT', bright: 'BRIGHT', military: 'MILITARY' };
 
   function applyTheme(theme){
-    if(!THEME_ORDER.includes(theme)) theme = 'default';
+    if(!THEME_ORDER.includes(theme)) theme = 'fantasy';
     if(theme === 'default'){ document.documentElement.removeAttribute('data-theme'); }
     else { document.documentElement.setAttribute('data-theme', theme); }
     els.themeToggleLabel.textContent = THEME_LABELS[theme];
@@ -1718,7 +1923,7 @@
     return theme;
   }
 
-  let currentTheme = 'default';
+  let currentTheme = 'fantasy';
   els.themeToggle.addEventListener('click', ()=>{
     const next = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme) + 1) % THEME_ORDER.length];
     currentTheme = applyTheme(next);
@@ -1738,8 +1943,8 @@
   window.addEventListener('resize', syncLogCardHeight);
 
   // init
-  let savedTheme = 'default';
-  try{ savedTheme = localStorage.getItem(THEME_KEY) || 'default'; }catch(e){}
+  let savedTheme = 'fantasy';
+  try{ savedTheme = localStorage.getItem(THEME_KEY) || 'fantasy'; }catch(e){}
   currentTheme = applyTheme(savedTheme);
   let savedView = 'clock';
   try{ savedView = localStorage.getItem(VIEW_KEY) || 'clock'; }catch(e){}
